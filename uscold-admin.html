@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US Cold — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0A1628;
+      --surface:    #0e1e35;
+      --surface2:   #0c1a2e;
+      --sidebar:    #0b1a30;
+      --accent:     #00D4FF;
+      --text:       #F0F6FA;
+      --mist:       #A8BFD0;
+      --border:     rgba(168,191,208,0.12);
+      --border2:    rgba(168,191,208,0.07);
+      --green:      #34d399;
+      --red:        #f87171;
+      --gray:       #374151;
+    }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+    }
+
+    /* ── App shell ── */
+    .app { display: flex; flex-direction: column; height: 100vh; }
+
+    /* ── Top bar ── */
+    .topbar {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 0 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .topbar-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    .topbar-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--mist);
+      opacity: 0.6;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .save-status {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      min-width: 90px;
+      text-align: right;
+      transition: opacity 0.4s;
+    }
+    .save-status.saving { color: #fbbf24; }
+    .save-status.saved  { color: var(--green); }
+    .save-status.error  { color: var(--red); }
+
+    .btn {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, background 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: var(--accent); color: #0A1628; }
+    .btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--mist); }
+    .btn-danger    { background: transparent; border: 1px solid rgba(248,113,113,0.35); color: var(--red); }
+    .btn:disabled  { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── Workspace ── */
+    .workspace {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 258px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .sidebar-top {
+      padding: 12px 12px 8px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .sidebar-search {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-search svg {
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--mist);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      background: rgba(200,232,245,0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 12px;
+      padding: 7px 10px 7px 30px;
+      border-radius: 4px;
+      outline: none;
+    }
+    .sidebar-search input::placeholder { color: var(--mist); opacity: 0.4; }
+    .sidebar-search input:focus { border-color: rgba(0,212,255,0.3); }
+
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .filter-tab {
+      flex: 1;
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 5px 0;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--mist);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .filter-tab.active {
+      background: rgba(0,212,255,0.12);
+      border-color: rgba(0,212,255,0.3);
+      color: var(--accent);
+    }
+
+    .state-select {
+      width: 100%;
+      background: rgba(200,232,245,0.04);
+      border: 1px solid var(--border);
+      color: var(--mist);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+    }
+    .state-select option { background: #0e1e35; }
+
+    .facility-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 9px 14px 9px 12px;
+      border-left: 2px solid transparent;
+      border-bottom: 1px solid var(--border2);
+      cursor: pointer;
+      transition: background 0.12s;
+      gap: 8px;
+    }
+    .list-item:hover { background: rgba(200,232,245,0.03); }
+    .list-item.active {
+      background: rgba(0,212,255,0.06);
+      border-left-color: var(--accent);
+    }
+
+    .list-item-info { flex: 1; min-width: 0; }
+
+    .list-item-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .list-item.active .list-item-name { color: var(--accent); }
+
+    .list-item-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      color: var(--mist);
+      opacity: 0.55;
+      margin-top: 1px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-dot.published   { background: var(--green); }
+    .status-dot.unpublished { background: var(--gray); }
+
+    .sidebar-footer {
+      padding: 8px 12px;
+      border-top: 1px solid var(--border2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--mist);
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+
+    /* ── Main panel ── */
+    .main-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    /* Empty state */
+    .empty-state {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--mist);
+      opacity: 0.35;
+      gap: 10px;
+    }
+
+    .empty-state svg { opacity: 0.5; }
+
+    .empty-state p {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+
+    /* Form header */
+    .form-header {
+      padding: 20px 32px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .form-title-block { min-width: 0; }
+
+    .form-facility-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .form-location {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      color: var(--mist);
+      opacity: 0.55;
+    }
+
+    .form-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      color: var(--mist);
+      opacity: 0.4;
+      margin-top: 2px;
+    }
+
+    .form-header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Published toggle in header */
+    .published-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .published-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: var(--mist);
+      text-transform: uppercase;
+    }
+
+    .published-state {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      min-width: 36px;
+    }
+    .published-state.live  { color: var(--green); }
+    .published-state.draft { color: var(--gray);  }
+
+    /* Form body */
+    .form-body { padding: 24px 32px 40px; }
+
+    /* Section */
+    .form-section { margin-bottom: 24px; }
+
+    .section-head {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      padding: 7px 10px;
+      background: rgba(0,212,255,0.04);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 3px 3px 0;
+      margin-bottom: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 20px;
+    }
+
+    .form-grid.thirds {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .field-full { grid-column: 1 / -1; }
+
+    .field-group { display: flex; flex-direction: column; gap: 5px; }
+
+    .field-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mist);
+      opacity: 0.7;
+    }
+
+    .field-input {
+      background: rgba(200,232,245,0.04);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 13px;
+      padding: 8px 11px;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.15s, background 0.15s;
+      width: 100%;
+    }
+    .field-input::placeholder { color: var(--mist); opacity: 0.35; }
+    .field-input:focus {
+      border-color: rgba(0,212,255,0.35);
+      background: rgba(200,232,245,0.06);
+    }
+
+    textarea.field-input {
+      resize: vertical;
+      min-height: 72px;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+
+    /* Toggle grid */
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px 16px;
+    }
+
+    .toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-wrap input[type="checkbox"] { display: none; }
+
+    .toggle-slider {
+      width: 34px;
+      height: 18px;
+      background: var(--gray);
+      border-radius: 9px;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle-slider::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle-wrap input:checked + .toggle-slider { background: var(--green); }
+    .toggle-wrap input:checked + .toggle-slider::after { transform: translateX(16px); }
+
+    .toggle-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mist);
+      transition: color 0.15s;
+    }
+
+    .toggle-wrap:has(input:checked) .toggle-name { color: var(--text); }
+
+    /* Conditional field */
+    .conditional-field {
+      background: rgba(0,212,255,0.03);
+      border: 1px solid rgba(0,212,255,0.1);
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .conditional-field .field-label { color: var(--accent); opacity: 0.7; }
+
+    /* Form actions */
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .form-actions-right { margin-left: auto; }
+
+    /* ── Delete Modal ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,10,20,0.75);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: #0e1e35;
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: 8px;
+      padding: 28px 28px 22px;
+      width: 380px;
+      max-width: 90vw;
+    }
+
+    .modal h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .modal p { font-size: 12.5px; color: var(--mist); margin-bottom: 18px; line-height: 1.5; }
+
+    .modal-input-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mist);
+      opacity: 0.6;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .modal input {
+      width: 100%;
+      background: rgba(200,232,245,0.04);
+      border: 1px solid rgba(248,113,113,0.3);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      border-radius: 4px;
+      outline: none;
+      margin-bottom: 8px;
+    }
+    .modal input:focus { border-color: var(--red); }
+
+    .modal-match-hint {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      height: 14px;
+      margin-bottom: 18px;
+    }
+    .modal-match-hint.match { color: var(--green); }
+    .modal-match-hint.no-match { color: var(--red); opacity: 0.6; }
+
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Misc ── */
+    .loading-overlay {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--mist);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Top bar ── -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-logo">US COLD</span>
+      <span class="topbar-sub">— Admin</span>
+    </div>
+    <div class="topbar-right">
+      <span class="save-status" id="save-status"></span>
+      <button class="btn btn-primary" id="add-facility-btn">+ Add Facility</button>
+    </div>
+  </header>
+
+  <!-- ── Workspace ── -->
+  <div class="workspace">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="sidebar-search" placeholder="Search facilities…">
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="published">Published</button>
+          <button class="filter-tab" data-filter="unpublished">Unpublished</button>
+        </div>
+        <select class="state-select" id="state-filter">
+          <option value="">All States</option>
+        </select>
+      </div>
+      <div class="facility-list" id="facility-list">
+        <div class="loading-overlay">Loading…</div>
+      </div>
+      <div class="sidebar-footer" id="sidebar-footer"></div>
+    </aside>
+
+    <!-- Main panel -->
+    <div class="main-panel">
+      <div class="main-scroll" id="main-scroll">
+        <div class="empty-state" id="empty-state">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          <p>Select a facility to edit</p>
+        </div>
+        <div id="form-container" style="display:none; height:100%;">
+          <!-- injected by renderForm() -->
+        </div>
+      </div>
+      <!-- Form actions bar (shown when form is visible) -->
+      <div class="form-actions" id="form-actions" style="display:none">
+        <button class="btn btn-primary" id="save-btn">Save Changes</button>
+        <button class="btn btn-secondary" id="discard-btn">Discard</button>
+        <div class="form-actions-right">
+          <button class="btn btn-danger" id="delete-btn">Delete Facility</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /workspace -->
+</div><!-- /app -->
+
+<!-- ── Delete Confirmation Modal ── -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal">
+    <h3>Delete Facility</h3>
+    <p>This cannot be undone. The facility will be permanently removed from the database and the public locations page.</p>
+    <span class="modal-input-label">Type the facility name to confirm</span>
+    <input type="text" id="modal-input" placeholder="" autocomplete="off">
+    <div class="modal-match-hint" id="modal-hint"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="modal-cancel">Cancel</button>
+      <button class="btn btn-danger" id="modal-confirm" disabled>Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://ypqeekmwqkafknajxuki.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_KZ6JO3EYjDCPkjzp8Ygs3A_iVQqFB81';
+
+// ── State ──────────────────────────────────────────────────────────────────
+let facilities  = [];
+let selectedId  = null;
+let isNew       = false;
+let saveTimer   = null;
+let filterMode  = 'all';
+let stateFilter = '';
+let searchQuery = '';
+
+// ── API ────────────────────────────────────────────────────────────────────
+async function apiFetch(path, options = {}) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    ...options,
+    headers: {
+      'apikey':          SUPABASE_KEY,
+      'Authorization':   `Bearer ${SUPABASE_KEY}`,
+      'Content-Type':    'application/json',
+      'Prefer':          options.method === 'PATCH' || options.method === 'POST'
+                           ? 'return=representation' : '',
+      ...options.headers,
+    },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (res.status === 204) return null;
+  return res.json();
+}
+
+async function loadFacilities() {
+  facilities = await apiFetch('facilities?select=*&order=name.asc');
+  populateStateFilter();
+  renderSidebar();
+  updateFooter();
+}
+
+async function patchFacility(id, data) {
+  const rows = await apiFetch(`facilities?id=eq.${id}`, {
+    method: 'PATCH', body: JSON.stringify(data)
+  });
+  return rows[0];
+}
+
+async function postFacility(data) {
+  const rows = await apiFetch('facilities', {
+    method: 'POST', body: JSON.stringify(data)
+  });
+  return rows[0];
+}
+
+async function deleteFacilityById(id) {
+  await apiFetch(`facilities?id=eq.${id}`, { method: 'DELETE' });
+}
+
+// ── Sidebar ────────────────────────────────────────────────────────────────
+function visibleFacilities() {
+  return facilities.filter(f => {
+    if (filterMode === 'published'   && !f.published) return false;
+    if (filterMode === 'unpublished' &&  f.published) return false;
+    if (stateFilter && f.state !== stateFilter) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const h = `${f.name} ${f.city} ${f.state}`.toLowerCase();
+      if (!h.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderSidebar() {
+  const list = document.getElementById('facility-list');
+  const visible = visibleFacilities();
+
+  if (!visible.length) {
+    list.innerHTML = `<div style="padding:20px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mist); opacity:0.4;">No facilities match.</div>`;
+    updateFooter();
+    return;
+  }
+
+  list.innerHTML = visible.map(f => `
+    <div class="list-item ${f.id === selectedId ? 'active' : ''}" data-id="${f.id}">
+      <div class="list-item-info">
+        <div class="list-item-name">${esc(f.name)}</div>
+        <div class="list-item-meta">${esc(f.state)} · ${esc(f.city)}</div>
+      </div>
+      <span class="status-dot ${f.published ? 'published' : 'unpublished'}" title="${f.published ? 'Published' : 'Unpublished'}"></span>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.list-item').forEach(el => {
+    el.addEventListener('click', () => selectFacility(el.dataset.id));
+  });
+
+  updateFooter();
+}
+
+function populateStateFilter() {
+  const states = [...new Set(facilities.map(f => f.state).filter(Boolean))].sort();
+  const sel    = document.getElementById('state-filter');
+  const prev   = sel.value;
+  sel.innerHTML = '<option value="">All States</option>' +
+    states.map(s => `<option value="${s}">${s}</option>`).join('');
+  sel.value = states.includes(prev) ? prev : '';
+}
+
+function updateFooter() {
+  const v = visibleFacilities().length;
+  document.getElementById('sidebar-footer').textContent =
+    `${v} of ${facilities.length} facilities`;
+}
+
+// ── Form rendering ─────────────────────────────────────────────────────────
+function toggle(name, label, checked) {
+  return `
+    <label class="toggle-wrap">
+      <input type="checkbox" name="${name}" ${checked ? 'checked' : ''}>
+      <span class="toggle-slider"></span>
+      <span class="toggle-name">${label}</span>
+    </label>`;
+}
+
+function field(name, label, value, type = 'text', placeholder = '', opts = '') {
+  return `
+    <div class="field-group">
+      <span class="field-label">${label}</span>
+      <input class="field-input" type="${type}" name="${name}" value="${esc(value ?? '')}"
+        placeholder="${placeholder}" ${opts}>
+    </div>`;
+}
+
+function renderForm(f) {
+  const isNewForm = !f || !f.id;
+  const title     = isNewForm ? 'New Facility' : (f.name || 'Untitled');
+  const location  = isNewForm ? '' : [f.state, f.city].filter(Boolean).join(' · ');
+  const updatedAt = f && f.updated_at
+    ? 'Updated ' + new Date(f.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    : '';
+
+  const d = f || {};
+
+  const html = `
+    <form id="facility-form" autocomplete="off">
+      <!-- Header -->
+      <div class="form-header">
+        <div class="form-title-block">
+          <div class="form-facility-name">${esc(title)}</div>
+          ${location ? `<div class="form-location">${esc(location)}</div>` : ''}
+          ${updatedAt ? `<div class="form-meta">${updatedAt}</div>` : ''}
+        </div>
+        <div class="form-header-right">
+          <div class="published-row">
+            <span class="published-label">Published</span>
+            ${toggle('published', '', !!d.published)}
+            <span class="published-state ${d.published ? 'live' : 'draft'}" id="published-state">
+              ${d.published ? 'LIVE' : 'DRAFT'}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-body">
+
+        <!-- Basic Info -->
+        <div class="form-section">
+          <div class="section-head">Basic Information</div>
+          <div class="form-grid">
+            <div class="field-group field-full">
+              <span class="field-label">Facility Name *</span>
+              <input class="field-input" type="text" name="name" value="${esc(d.name ?? '')}" placeholder="Enter facility name" required>
+            </div>
+            ${field('state',         'State',         d.state,         'text', 'TX')}
+            ${field('city',          'City',          d.city,          'text', 'City name')}
+            <div class="field-group field-full">
+              <span class="field-label">Address</span>
+              <input class="field-input" type="text" name="address" value="${esc(d.address ?? '')}" placeholder="Street address">
+            </div>
+            ${field('zip',           'ZIP',           d.zip,           'text', '00000')}
+            ${field('phone',         'Phone',         d.phone,         'text', '(000) 000-0000')}
+            <div class="field-group field-full">
+              <span class="field-label">Contact Email</span>
+              <input class="field-input" type="email" name="contact_email" value="${esc(d.contact_email ?? '')}" placeholder="contact@uscold.com">
+            </div>
+          </div>
+        </div>
+
+        <!-- Capacity & Temperature -->
+        <div class="form-section">
+          <div class="section-head">Capacity &amp; Temperature</div>
+          <div class="form-grid">
+            ${field('pallet_positions', 'Pallet Positions', d.pallet_positions, 'number', '0', 'min="0"')}
+            ${field('square_footage',   'Square Footage',   d.square_footage,   'number', '0', 'min="0"')}
+            ${field('temp_min_f',       'Temp Min (°F)',     d.temp_min_f,       'number', '-20')}
+            ${field('temp_max_f',       'Temp Max (°F)',     d.temp_max_f,       'number', '40')}
+          </div>
+        </div>
+
+        <!-- Capabilities -->
+        <div class="form-section">
+          <div class="section-head">Capabilities</div>
+          <div class="toggle-grid">
+            ${toggle('rail_access',    'Rail Access',      !!d.rail_access)}
+            ${toggle('quick_freeze',   'Quick Freeze',     !!d.quick_freeze)}
+            ${toggle('automated',      'Automated',        !!d.automated)}
+            ${toggle('layer_pick',     'Layer Pick',       !!d.layer_pick)}
+            ${toggle('repack',         'Repack',           !!d.repack)}
+            ${toggle('export_import',  'Export / Import',  !!d.export_import)}
+            ${toggle('organic',        'Organic',          !!d.organic)}
+            ${toggle('dedicated',      'Dedicated',        !!d.dedicated)}
+          </div>
+
+          <!-- Rail carrier — conditional -->
+          <div class="conditional-field" id="rail-carrier-field" style="display:${d.rail_access ? '' : 'none'}">
+            <div class="field-group">
+              <span class="field-label">Rail Carrier</span>
+              <input class="field-input" type="text" name="rail_carrier" value="${esc(d.rail_carrier ?? '')}" placeholder="e.g. BNSF, UP, CSX">
+            </div>
+          </div>
+
+          <!-- Quick freeze auto — conditional -->
+          <div class="conditional-field" id="qf-auto-field" style="display:${d.quick_freeze ? '' : 'none'}">
+            <div class="toggle-wrap">
+              <input type="checkbox" name="quick_freeze_auto" ${d.quick_freeze_auto ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+              <span class="toggle-name">Automated Quick Freeze</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div class="form-section">
+          <div class="section-head">Certifications</div>
+          <div class="toggle-grid">
+            ${toggle('brcgs', 'BRCGS', !!d.brcgs)}
+            ${toggle('usda',  'USDA',  !!d.usda)}
+            ${toggle('fda',   'FDA',   !!d.fda)}
+            ${toggle('sqf',   'SQF',   !!d.sqf)}
+          </div>
+        </div>
+
+        <!-- Media & Notes -->
+        <div class="form-section">
+          <div class="section-head">Media &amp; Notes</div>
+          <div class="form-grid">
+            <div class="field-group field-full">
+              <span class="field-label">Image URL</span>
+              <input class="field-input" type="url" name="image_url" value="${esc(d.image_url ?? '')}" placeholder="https://…">
+            </div>
+            <div class="field-group field-full">
+              <span class="field-label">Notes</span>
+              <textarea class="field-input" name="notes" placeholder="Internal notes…">${esc(d.notes ?? '')}</textarea>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /form-body -->
+    </form>`;
+
+  document.getElementById('form-container').innerHTML = html;
+  document.getElementById('form-container').style.display = '';
+  document.getElementById('empty-state').style.display    = 'none';
+  document.getElementById('form-actions').style.display   = '';
+
+  // ── Conditional field listeners ──────────────────────────────────────────
+  const form = document.getElementById('facility-form');
+
+  form.querySelector('[name="rail_access"]').addEventListener('change', function () {
+    document.getElementById('rail-carrier-field').style.display = this.checked ? '' : 'none';
+  });
+
+  form.querySelector('[name="quick_freeze"]').addEventListener('change', function () {
+    document.getElementById('qf-auto-field').style.display = this.checked ? '' : 'none';
+  });
+
+  form.querySelector('[name="published"]').addEventListener('change', function () {
+    const el = document.getElementById('published-state');
+    el.textContent  = this.checked ? 'LIVE' : 'DRAFT';
+    el.className    = `published-state ${this.checked ? 'live' : 'draft'}`;
+  });
+
+  // Show/hide delete button for new facilities
+  document.getElementById('delete-btn').style.display = isNewForm ? 'none' : '';
+}
+
+// ── Select / deselect ──────────────────────────────────────────────────────
+function selectFacility(id) {
+  selectedId = String(id);
+  isNew      = false;
+  const f    = facilities.find(x => String(x.id) === String(id));
+  if (!f) return;
+  renderForm(f);
+  renderSidebar();
+  document.getElementById('main-scroll').scrollTop = 0;
+}
+
+function showNewForm() {
+  selectedId = null;
+  isNew      = true;
+  renderForm(null);
+  renderSidebar();
+  document.getElementById('main-scroll').scrollTop = 0;
+}
+
+// ── Save ───────────────────────────────────────────────────────────────────
+function getFormPayload() {
+  const form = document.getElementById('facility-form');
+  if (!form) return null;
+  const fd = new FormData(form);
+
+  const boolFields = [
+    'rail_access','quick_freeze','quick_freeze_auto','automated',
+    'layer_pick','repack','export_import','organic','dedicated',
+    'brcgs','usda','fda','sqf','published'
+  ];
+  const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f'];
+  const payload    = {};
+
+  for (const [key, val] of fd.entries()) {
+    if (boolFields.includes(key)) continue; // handled below
+    if (intFields.includes(key)) {
+      payload[key] = val.trim() === '' ? null : parseInt(val, 10);
+    } else {
+      payload[key] = val.trim() === '' ? null : val.trim();
+    }
+  }
+  boolFields.forEach(k => { payload[k] = !!form.querySelector(`[name="${k}"]`)?.checked; });
+  return payload;
+}
+
+async function handleSave() {
+  const payload = getFormPayload();
+  if (!payload) return;
+  if (!payload.name) {
+    setStatus('error', 'Name is required');
+    return;
+  }
+
+  setStatus('saving', 'Saving…');
+  try {
+    if (isNew) {
+      const created = await postFacility(payload);
+      facilities.push(created);
+      facilities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      selectedId = created.id;
+      isNew      = false;
+      renderForm(created);
+    } else {
+      const updated = await patchFacility(selectedId, payload);
+      const idx = facilities.findIndex(f => f.id === selectedId);
+      if (idx !== -1) {
+        facilities[idx] = updated;
+        facilities.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      }
+      renderForm(updated);
+    }
+    populateStateFilter();
+    renderSidebar();
+    setStatus('saved', '● Saved');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => setStatus('idle', ''), 2500);
+  } catch (err) {
+    console.error(err);
+    setStatus('error', '✕ Error saving');
+  }
+}
+
+function handleDiscard() {
+  if (isNew) {
+    selectedId = null;
+    isNew      = false;
+    document.getElementById('form-container').style.display = 'none';
+    document.getElementById('empty-state').style.display    = '';
+    document.getElementById('form-actions').style.display   = 'none';
+    renderSidebar();
+  } else {
+    const f = facilities.find(x => x.id === selectedId);
+    if (f) renderForm(f);
+  }
+}
+
+// ── Delete ─────────────────────────────────────────────────────────────────
+let pendingDeleteId   = null;
+let pendingDeleteName = '';
+
+function openDeleteModal() {
+  const f = facilities.find(x => x.id === selectedId);
+  if (!f) return;
+  pendingDeleteId   = f.id;
+  pendingDeleteName = f.name || '';
+
+  document.getElementById('modal-input').value       = '';
+  document.getElementById('modal-hint').textContent  = '';
+  document.getElementById('modal-confirm').disabled  = true;
+  document.getElementById('modal-backdrop').classList.add('open');
+  document.getElementById('modal-input').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').classList.remove('open');
+  pendingDeleteId   = null;
+  pendingDeleteName = '';
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) return;
+  closeModal();
+  setStatus('saving', 'Deleting…');
+  try {
+    await deleteFacilityById(pendingDeleteId);
+    facilities = facilities.filter(f => f.id !== pendingDeleteId);
+    selectedId = null;
+    isNew      = false;
+    document.getElementById('form-container').style.display = 'none';
+    document.getElementById('empty-state').style.display    = '';
+    document.getElementById('form-actions').style.display   = 'none';
+    renderSidebar();
+    setStatus('saved', '● Deleted');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => setStatus('idle', ''), 2500);
+  } catch (err) {
+    console.error(err);
+    setStatus('error', '✕ Delete failed');
+  }
+}
+
+// ── Status ─────────────────────────────────────────────────────────────────
+function setStatus(type, msg) {
+  const el      = document.getElementById('save-status');
+  el.textContent = msg;
+  el.className   = `save-status ${type}`;
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── Event wiring ───────────────────────────────────────────────────────────
+document.getElementById('add-facility-btn').addEventListener('click', showNewForm);
+
+document.getElementById('save-btn').addEventListener('click', handleSave);
+document.getElementById('discard-btn').addEventListener('click', handleDiscard);
+document.getElementById('delete-btn').addEventListener('click', openDeleteModal);
+
+document.querySelectorAll('.filter-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterMode = btn.dataset.filter;
+    renderSidebar();
+  });
+});
+
+document.getElementById('state-filter').addEventListener('change', e => {
+  stateFilter = e.target.value;
+  renderSidebar();
+});
+
+document.getElementById('sidebar-search').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderSidebar();
+});
+
+// Modal
+document.getElementById('modal-input').addEventListener('input', function () {
+  const match   = this.value.trim() === pendingDeleteName.trim();
+  const hint    = document.getElementById('modal-hint');
+  const confirm = document.getElementById('modal-confirm');
+  if (!this.value) {
+    hint.textContent = '';
+    hint.className   = 'modal-match-hint';
+  } else if (match) {
+    hint.textContent = '✓ Name matches — deletion enabled';
+    hint.className   = 'modal-match-hint match';
+  } else {
+    hint.textContent = 'Name does not match';
+    hint.className   = 'modal-match-hint no-match';
+  }
+  confirm.disabled = !match;
+});
+
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
+document.getElementById('modal-confirm').addEventListener('click', confirmDelete);
+
+document.getElementById('modal-backdrop').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ── Boot ───────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    await loadFacilities();
+  } catch (err) {
+    console.error(err);
+    document.getElementById('facility-list').innerHTML =
+      `<div style="padding:20px 14px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--red);">Failed to load. Check console.</div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
