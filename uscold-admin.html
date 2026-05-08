@@ -916,6 +916,25 @@ function renderForm(f) {
           </div>
         </div>
 
+        <!-- Contacts -->
+        <div class="form-section">
+          <div class="section-head">Contacts</div>
+          <div class="form-grid">
+            ${field('warehouse_contact_name',  'Warehouse Contact Name',  d.warehouse_contact_name,  'text', 'Full name')}
+            ${field('warehouse_contact_email', 'Warehouse Contact Email', d.warehouse_contact_email, 'email', 'email@facility.com')}
+            <div class="field-group field-full">
+              <span class="field-label">Warehouse Contact Phone</span>
+              <input class="field-input" type="text" name="warehouse_contact_phone" value="${esc(d.warehouse_contact_phone ?? '')}" placeholder="(000) 000-0000">
+            </div>
+            ${field('sales_contact_name',  'Sales Contact Name',  d.sales_contact_name,  'text', 'Full name')}
+            ${field('sales_contact_email', 'Sales Contact Email', d.sales_contact_email, 'email', 'email@uscold.com')}
+            <div class="field-group field-full">
+              <span class="field-label">Sales Contact Phone</span>
+              <input class="field-input" type="text" name="sales_contact_phone" value="${esc(d.sales_contact_phone ?? '')}" placeholder="(000) 000-0000">
+            </div>
+          </div>
+        </div>
+
         <!-- Media & Notes -->
         <div class="form-section">
           <div class="section-head">Media &amp; Notes</div>

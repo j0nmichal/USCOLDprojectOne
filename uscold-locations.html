@@ -11,21 +11,21 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0A1628;
-      --accent: #00D4FF;
-      --text: #F0F6FA;
-      --mist: #A8BFD0;
-      --card-bg: rgba(200,232,245,0.03);
-      --card-border: rgba(200,232,245,0.08);
+      --bg:         #0A1628;
+      --accent:     #00D4FF;
+      --text:       #F0F6FA;
+      --mist:       #A8BFD0;
+      --card-bg:    rgba(200,232,245,0.03);
+      --card-border:rgba(200,232,245,0.08);
+      --border:     rgba(168,191,208,0.12);
     }
 
     html, body { height: 100%; overflow: hidden; }
 
     body {
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: 'IBM Plex Sans', sans-serif;
-      position: relative;
     }
 
     body::before {
@@ -40,7 +40,7 @@
       z-index: 0;
     }
 
-    .page-wrapper {
+    .page {
       position: relative;
       z-index: 1;
       height: 100vh;
@@ -48,135 +48,202 @@
       flex-direction: column;
     }
 
-    /* ── Header ── */
-    header {
-      padding: 44px 64px 28px;
-      flex-shrink: 0;
+    /* ── Hero ── */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 0;
+      min-height: 0;
     }
 
     .eyebrow {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.35em;
+      letter-spacing: 0.45em;
       color: var(--accent);
       text-transform: uppercase;
-      margin-bottom: 6px;
+      margin-bottom: 12px;
+      opacity: 0.8;
     }
 
-    h1 {
+    .headline {
+      text-align: center;
+      line-height: 0.92;
+      margin-bottom: 32px;
+    }
+
+    .headline-white {
+      display: block;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(44px, 5.5vw, 76px);
-      font-weight: 400;
-      letter-spacing: 0.06em;
+      font-size: clamp(72px, 10vw, 148px);
+      letter-spacing: 0.04em;
       color: var(--text);
-      line-height: 1;
-      margin-bottom: 28px;
     }
 
-    .search-wrapper {
+    .headline-blue {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 10vw, 148px);
+      letter-spacing: 0.04em;
+      color: var(--accent);
+    }
+
+    /* ── Chat ── */
+    .chat-container {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 0 4px 14px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .chat-messages:empty { display: none; }
+
+    .chat-msg {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .chat-msg-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .chat-msg-label.user-label    { color: var(--mist); opacity: 0.5; text-align: right; }
+    .chat-msg-label.uscold-label  { color: var(--accent); opacity: 0.8; }
+
+    .chat-msg-text {
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .chat-msg.user .chat-msg-text {
+      text-align: right;
+      color: var(--mist);
+    }
+
+    .chat-msg.thinking .chat-msg-text {
+      color: var(--mist);
+      opacity: 0.45;
+      font-style: italic;
+    }
+
+    /* Data sheet offer button */
+    .datasheet-offer {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 8px;
+      background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.25);
+      color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 6px 14px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .datasheet-offer:hover { background: rgba(0,212,255,0.15); }
+
+    /* Input row */
+    .chat-input-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      max-width: 440px;
-      position: relative;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      color: var(--mist);
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .search-input {
+      gap: 0;
       background: rgba(200,232,245,0.04);
-      border: 1px solid rgba(200,232,245,0.1);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 4px 0 16px;
+      transition: border-color 0.2s;
+    }
+    .chat-input-row:focus-within { border-color: rgba(0,212,255,0.35); }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
       color: var(--text);
       font-family: 'IBM Plex Sans', sans-serif;
-      font-size: 13px;
-      padding: 10px 16px 10px 38px;
-      border-radius: 4px;
-      width: 100%;
+      font-size: 14px;
+      padding: 13px 0;
       outline: none;
-      transition: border-color 0.2s, background 0.2s;
     }
-    .search-input::placeholder { color: var(--mist); opacity: 0.45; }
-    .search-input:focus {
-      border-color: rgba(0,212,255,0.35);
-      background: rgba(200,232,245,0.06);
+    .chat-input::placeholder { color: var(--mist); opacity: 0.35; }
+
+    .chat-send {
+      background: transparent;
+      border: none;
+      color: var(--mist);
+      cursor: pointer;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      opacity: 0.5;
+      transition: opacity 0.15s, color 0.15s;
     }
+    .chat-send:hover { opacity: 1; color: var(--accent); }
 
     /* ── Marquee ── */
     .marquee-section {
-      flex: 1;
+      height: 168px;
       display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 0;
-      padding: 8px 0 20px;
+      align-items: center;
+      padding: 8px 0;
+      flex-shrink: 0;
     }
 
     .marquee-outer {
+      width: 100%;
       overflow: hidden;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
-      cursor: default;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
     }
 
     .marquee-track {
       display: flex;
-      gap: 18px;
+      gap: 16px;
       width: max-content;
-      padding: 16px 0;
+      padding: 8px 0;
       animation: marquee 220s linear infinite;
     }
 
-    .marquee-track.paused,
-    .marquee-track:hover {
-      animation-play-state: paused;
-    }
+    .marquee-track:hover { animation-play-state: paused; }
 
     @keyframes marquee {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
 
-    /* ── Search Results Grid ── */
-    .search-results {
-      display: none;
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 64px 36px;
-      gap: 16px;
-      flex-wrap: wrap;
-      align-content: flex-start;
-    }
-
-    .search-results.active { display: flex; }
-
-    .no-results {
-      width: 100%;
-      text-align: center;
-      color: var(--mist);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-      padding: 48px 0;
-      opacity: 0.5;
-    }
-
-    /* ── Facility Card ── */
+    /* ── Card ── */
     .facility-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-top: 2px solid transparent;
-      border-radius: 6px;
-      width: 292px;
+      border-radius: 5px;
+      width: 220px;
       flex-shrink: 0;
-      padding: 22px 20px 18px;
+      padding: 16px 16px 14px;
       transition: border-top-color 0.2s, background 0.2s;
+      cursor: default;
     }
 
     .facility-card:hover {
@@ -186,83 +253,196 @@
 
     .card-state {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 500;
       letter-spacing: 0.18em;
       color: var(--accent);
       text-transform: uppercase;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
 
     .card-city {
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 1px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-bottom: 6px;
     }
 
-    .card-name {
+    .card-capacity {
       font-size: 11px;
       color: var(--mist);
-      opacity: 0.7;
-      margin-bottom: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card-stats {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 14px;
-    }
-
-    .card-stat {
-      font-size: 11px;
-      color: var(--mist);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .card-stat strong {
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .stat-icon {
-      width: 12px;
-      height: 12px;
-      flex-shrink: 0;
-      opacity: 0.5;
+      opacity: 0.55;
+      margin-bottom: 8px;
     }
 
     .card-badges {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 4px;
     }
 
     .badge {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8.5px;
+      font-size: 8px;
       font-weight: 500;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 3px 7px;
+      padding: 2px 6px;
       border-radius: 2px;
       white-space: nowrap;
     }
 
-    .badge-rail    { background: rgba(0,212,255,0.1);   color: #00D4FF; border: 1px solid rgba(0,212,255,0.22); }
-    .badge-freeze  { background: rgba(96,200,255,0.08); color: #7dd3f8; border: 1px solid rgba(96,200,255,0.18); }
-    .badge-auto    { background: rgba(139,92,246,0.09); color: #a78bfa; border: 1px solid rgba(139,92,246,0.18); }
-    .badge-organic { background: rgba(52,211,153,0.07); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.16); }
-    .badge-default { background: rgba(168,191,208,0.07); color: var(--mist); border: 1px solid rgba(168,191,208,0.14); }
+    .badge-rail    { background: rgba(0,212,255,0.1);   color: #00D4FF; border: 1px solid rgba(0,212,255,0.2); }
+    .badge-freeze  { background: rgba(96,200,255,0.07); color: #7dd3f8; border: 1px solid rgba(96,200,255,0.17); }
+    .badge-auto    { background: rgba(139,92,246,0.08); color: #a78bfa; border: 1px solid rgba(139,92,246,0.17); }
+    .badge-organic { background: rgba(52,211,153,0.07); color: #6ee7b7; border: 1px solid rgba(52,211,153,0.15); }
+    .badge-default { background: rgba(168,191,208,0.06); color: var(--mist); border: 1px solid rgba(168,191,208,0.13); }
+
+    /* ── Footer ── */
+    .page-footer {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .footer-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      color: var(--mist);
+      opacity: 0.28;
+      text-transform: uppercase;
+    }
+
+    /* ── Data Sheet Overlay ── */
+    .datasheet-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,10,20,0.82);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .datasheet-overlay.open { display: flex; }
+
+    .datasheet-panel {
+      background: #0c1929;
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 88vh;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .ds-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid rgba(168,191,208,0.08);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .ds-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .ds-location {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      color: var(--mist);
+      opacity: 0.55;
+      letter-spacing: 0.1em;
+    }
+
+    .ds-close {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--mist);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 16px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .ds-close:hover { border-color: var(--accent); color: var(--accent); }
+
+    .ds-body { padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 24px; }
+
+    .ds-section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: 0.7;
+      margin-bottom: 10px;
+    }
+
+    .ds-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+
+    .ds-item label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mist);
+      opacity: 0.5;
+      margin-bottom: 2px;
+    }
+
+    .ds-item span {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .ds-badges { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .ds-contact-block {
+      background: rgba(200,232,245,0.03);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+
+    .ds-contact-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .ds-contact-name  { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .ds-contact-email { font-size: 12px; color: var(--mist); }
+    .ds-contact-phone { font-size: 12px; color: var(--mist); opacity: 0.7; }
+    .ds-contact-empty { font-size: 12px; color: var(--mist); opacity: 0.35; font-style: italic; }
 
     /* ── Loading ── */
     .loading-state {
@@ -274,96 +454,84 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
       letter-spacing: 0.12em;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
-    .dot { animation: pulse 1.4s ease-in-out infinite; }
+    .dot { animation: blink 1.4s ease-in-out infinite; }
     .dot:nth-child(2) { animation-delay: 0.2s; }
     .dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes pulse { 0%,80%,100% { opacity: 0.1; } 40% { opacity: 1; } }
-
-    .error-state {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #f87171;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      letter-spacing: 0.08em;
-    }
-
-    /* ── Footer ── */
-    .page-footer {
-      padding: 12px 64px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      border-top: 1px solid rgba(200,232,245,0.04);
-    }
-
-    .footer-count {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      color: var(--mist);
-      opacity: 0.35;
-    }
-
-    .hover-hint {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.08em;
-      color: var(--mist);
-      opacity: 0.25;
-    }
+    @keyframes blink { 0%,80%,100%{opacity:0.1;} 40%{opacity:1;} }
   </style>
 </head>
 <body>
-<div class="page-wrapper">
-
-  <header>
-    <div class="eyebrow">US COLD</div>
-    <h1>LOCATIONS &amp; SERVICES</h1>
-    <div class="search-wrapper">
-      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input type="text" class="search-input" id="search-input"
-        placeholder="City, state, or capability — rail, organic, quick freeze…">
-    </div>
-  </header>
+<div class="page">
 
   <div class="loading-state" id="loading-state">
     Loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
   </div>
 
-  <div class="error-state" id="error-state" style="display:none">
-    Failed to load facilities. Check your connection and try again.
-  </div>
+  <div id="main-content" style="display:none; height:100%; flex-direction:column; display:none">
 
-  <div class="marquee-section" id="marquee-section" style="display:none">
-    <div class="marquee-outer">
-      <div class="marquee-track" id="marquee-track"></div>
+    <!-- Hero -->
+    <div class="hero">
+      <div class="eyebrow">US COLD</div>
+      <div class="headline">
+        <span class="headline-white">LOCATIONS</span>
+        <span class="headline-blue">&amp; SERVICES</span>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text"
+            placeholder="Ask about a city, state, or capability…" autocomplete="off">
+          <button class="chat-send" id="chat-send" aria-label="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/>
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="search-results" id="search-results"></div>
+    <!-- Marquee -->
+    <div class="marquee-section">
+      <div class="marquee-outer">
+        <div class="marquee-track" id="marquee-track"></div>
+      </div>
+    </div>
 
-  <footer class="page-footer">
-    <span class="footer-count" id="facility-count"></span>
-    <span class="hover-hint" id="hover-hint">hover to pause</span>
-  </footer>
+    <!-- Footer -->
+    <footer class="page-footer">
+      <span class="footer-text" id="footer-text"></span>
+    </footer>
 
+  </div><!-- /main-content -->
+</div><!-- /page -->
+
+<!-- Data Sheet -->
+<div class="datasheet-overlay" id="datasheet-overlay">
+  <div class="datasheet-panel" id="datasheet-panel"></div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://ypqeekmwqkafknajxuki.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_KZ6JO3EYjDCPkjzp8Ygs3A_iVQqFB81';
+// ── Config ─────────────────────────────────────────────────────────────────
+// NOTE: this key will be visible in page source — set a usage limit in your
+// Anthropic dashboard to cap exposure.
+const CLAUDE_API_KEY  = 'YOUR_CLAUDE_API_KEY_HERE';
+const SUPABASE_URL    = 'https://ypqeekmwqkafknajxuki.supabase.co';
+const SUPABASE_KEY    = 'sb_publishable_KZ6JO3EYjDCPkjzp8Ygs3A_iVQqFB81';
+const CLAUDE_MODEL    = 'claude-haiku-4-5-20251001';
 
-let allFacilities = [];
+// ── State ──────────────────────────────────────────────────────────────────
+let allFacilities       = [];
+let conversation        = [];          // [{role, content}]
+let facilityMentions    = {};          // { id: count }
+let datasheetOffered    = new Set();
+let isStreaming         = false;
+let systemPrompt        = '';
 
+// ── Supabase ───────────────────────────────────────────────────────────────
 async function fetchFacilities() {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/facilities?published=eq.true&select=*&order=name.asc`,
@@ -373,63 +541,370 @@ async function fetchFacilities() {
   return res.json();
 }
 
-function formatPallets(n) {
-  if (!n) return null;
-  return `${Number(n).toLocaleString()} pallet positions`;
+// ── System prompt ──────────────────────────────────────────────────────────
+function buildSystemPrompt(facilities) {
+  const data = facilities.map(f => ({
+    name:                   f.name,
+    state:                  f.state,
+    city:                   f.city,
+    address:                f.address,
+    zip:                    f.zip,
+    phone:                  f.phone,
+    contact_email:          f.contact_email,
+    warehouse_contact:      f.warehouse_contact_name
+                              ? { name: f.warehouse_contact_name, email: f.warehouse_contact_email, phone: f.warehouse_contact_phone }
+                              : null,
+    sales_contact:          f.sales_contact_name
+                              ? { name: f.sales_contact_name, email: f.sales_contact_email, phone: f.sales_contact_phone }
+                              : null,
+    pallet_positions:       f.pallet_positions,
+    square_footage:         f.square_footage,
+    temp_range:             (f.temp_min_f != null && f.temp_max_f != null)
+                              ? `${f.temp_min_f}°F to ${f.temp_max_f}°F` : null,
+    rail_access:            f.rail_access,
+    rail_carrier:           f.rail_carrier,
+    capabilities: [
+      f.quick_freeze   && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
+      f.automated      && 'Automated',
+      f.layer_pick     && 'Layer Pick',
+      f.repack         && 'Repack',
+      f.export_import  && 'Export/Import',
+      f.organic        && 'Organic',
+      f.dedicated      && 'Dedicated',
+    ].filter(Boolean),
+    certifications: [
+      f.brcgs && 'BRCGS', f.usda && 'USDA', f.fda && 'FDA', f.sqf && 'SQF',
+    ].filter(Boolean),
+  }));
+
+  return `You are the US Cold virtual assistant. US Cold operates cold storage facilities across the United States.
+
+YOUR ONLY JOB is to answer questions about US Cold's facilities — locations, capabilities, temperature ranges, pallet capacity, certifications, rail access, and contact information.
+
+If anyone asks about anything unrelated to US Cold or cold storage, respond with exactly: "I'm here to help with questions about US Cold's cold storage facilities. What would you like to know?"
+
+Rules:
+- Be concise and direct. No filler phrases like "Great question!"
+- Only state facts from the data below — never estimate or invent
+- For contact questions: always provide both the warehouse contact and sales contact if available; fall back to the general contact_email if specific contacts are not set
+- When listing multiple facilities, use a clean list format
+- Keep responses under 120 words unless a detailed comparison is asked for
+
+FACILITY DATA:
+${JSON.stringify(data, null, 1)}`;
 }
 
-function formatTemp(min, max) {
-  if (min == null && max == null) return null;
-  if (min != null && max != null) return `${min}°F to ${max}°F`;
-  if (min != null) return `From ${min}°F`;
-  return `To ${max}°F`;
-}
-
-function buildBadges(f) {
-  const b = [];
-  if (f.rail_access) {
-    b.push({ label: f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail Access', cls: 'badge-rail' });
-  }
-  if (f.quick_freeze) {
-    b.push({ label: f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze', cls: 'badge-freeze' });
-  }
-  if (f.automated)     b.push({ label: 'Automated',      cls: 'badge-auto' });
-  if (f.organic)       b.push({ label: 'Organic',        cls: 'badge-organic' });
-  if (f.repack)        b.push({ label: 'Repack',         cls: 'badge-default' });
-  if (f.export_import) b.push({ label: 'Export / Import',cls: 'badge-default' });
-  if (f.brcgs)         b.push({ label: 'BRCGS',          cls: 'badge-default' });
-  if (f.layer_pick)    b.push({ label: 'Layer Pick',     cls: 'badge-default' });
-  if (f.dedicated)     b.push({ label: 'Dedicated',      cls: 'badge-default' });
-  return b;
-}
-
+// ── Marquee ────────────────────────────────────────────────────────────────
 function cardHTML(f) {
-  const pallets = formatPallets(f.pallet_positions);
-  const temp    = formatTemp(f.temp_min_f, f.temp_max_f);
-  const badges  = buildBadges(f);
+  const badges = [];
+  if (f.rail_access)    badges.push({ label: f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail', cls: 'badge-rail' });
+  if (f.quick_freeze)   badges.push({ label: f.quick_freeze_auto ? 'Auto QF' : 'Quick Freeze', cls: 'badge-freeze' });
+  if (f.automated)      badges.push({ label: 'Automated',      cls: 'badge-auto' });
+  if (f.organic)        badges.push({ label: 'Organic',        cls: 'badge-organic' });
+  if (f.repack)         badges.push({ label: 'Repack',         cls: 'badge-default' });
+  if (f.export_import)  badges.push({ label: 'Export',         cls: 'badge-default' });
+  if (f.brcgs)          badges.push({ label: 'BRCGS',          cls: 'badge-default' });
+  if (f.layer_pick)     badges.push({ label: 'Layer Pick',     cls: 'badge-default' });
 
-  const palletsRow = pallets
-    ? `<div class="card-stat"><strong>${pallets}</strong></div>`
-    : `<div class="card-stat" style="opacity:0.45">Contact for capacity</div>`;
-
-  const tempRow = temp
-    ? `<div class="card-stat">${temp}</div>`
-    : '';
-
-  const badgesHTML = badges.length
-    ? `<div class="card-badges">${badges.map(b => `<span class="badge ${b.cls}">${b.label}</span>`).join('')}</div>`
-    : '';
+  const capacity = f.pallet_positions
+    ? `${Number(f.pallet_positions).toLocaleString()} pallets`
+    : 'Contact for capacity';
 
   return `
     <div class="facility-card">
-      <div class="card-state">${esc(f.state) }</div>
-      <div class="card-city">${esc(f.city)  }</div>
-      <div class="card-name">${esc(f.name)  }</div>
-      <div class="card-stats">${palletsRow}${tempRow}</div>
-      ${badgesHTML}
+      <div class="card-state">${esc(f.state)}</div>
+      <div class="card-city">${esc(f.city)}</div>
+      <div class="card-capacity">${capacity}</div>
+      ${badges.length ? `<div class="card-badges">${badges.map(b=>`<span class="badge ${b.cls}">${b.label}</span>`).join('')}</div>` : ''}
     </div>`;
 }
 
+function initMarquee() {
+  const track = document.getElementById('marquee-track');
+  const html  = allFacilities.map(cardHTML).join('');
+  track.innerHTML = html + html;
+}
+
+// ── Chat UI helpers ────────────────────────────────────────────────────────
+function appendMessage(role, text, offerFacilityId = null) {
+  const msgs = document.getElementById('chat-messages');
+
+  const wrap = document.createElement('div');
+  wrap.className = `chat-msg ${role}`;
+
+  const label = document.createElement('div');
+  label.className = `chat-msg-label ${role === 'user' ? 'user-label' : 'uscold-label'}`;
+  label.textContent = role === 'user' ? 'You' : 'US Cold';
+
+  const textEl = document.createElement('div');
+  textEl.className = 'chat-msg-text';
+  textEl.textContent = text;
+
+  wrap.appendChild(label);
+  wrap.appendChild(textEl);
+
+  if (offerFacilityId) {
+    const btn = document.createElement('button');
+    btn.className = 'datasheet-offer';
+    btn.textContent = '▸ View Data Sheet';
+    btn.onclick = () => showDataSheet(offerFacilityId);
+    wrap.appendChild(btn);
+  }
+
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  return textEl;
+}
+
+function appendThinking() {
+  const msgs = document.getElementById('chat-messages');
+  const wrap = document.createElement('div');
+  wrap.className = 'chat-msg thinking';
+  wrap.id = 'thinking-indicator';
+
+  const label = document.createElement('div');
+  label.className = 'chat-msg-label uscold-label';
+  label.textContent = 'US Cold';
+
+  const text = document.createElement('div');
+  text.className = 'chat-msg-text';
+  text.textContent = '…';
+
+  wrap.appendChild(label);
+  wrap.appendChild(text);
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+  return wrap;
+}
+
+// ── Facility mention tracking ──────────────────────────────────────────────
+function trackMentions(text) {
+  const lower = text.toLowerCase();
+  let topFacility = null;
+  let topCount    = 0;
+
+  allFacilities.forEach(f => {
+    if (!f.name) return;
+    const nameLower = f.name.toLowerCase();
+    const cityLower = (f.city || '').toLowerCase();
+    if (lower.includes(nameLower) || (cityLower.length > 3 && lower.includes(cityLower))) {
+      facilityMentions[f.id] = (facilityMentions[f.id] || 0) + 1;
+      if (facilityMentions[f.id] > topCount) {
+        topCount    = facilityMentions[f.id];
+        topFacility = f;
+      }
+    }
+  });
+
+  if (topFacility && topCount >= 2 && !datasheetOffered.has(topFacility.id)) {
+    datasheetOffered.add(topFacility.id);
+    return topFacility;
+  }
+  return null;
+}
+
+// ── Claude API (streaming) ─────────────────────────────────────────────────
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text  = input.value.trim();
+  if (!text || isStreaming) return;
+
+  input.value = '';
+  isStreaming  = true;
+
+  appendMessage('user', text);
+  conversation.push({ role: 'user', content: text });
+
+  const thinkingEl = appendThinking();
+
+  try {
+    if (!CLAUDE_API_KEY || CLAUDE_API_KEY === 'YOUR_CLAUDE_API_KEY_HERE') {
+      thinkingEl.remove();
+      appendMessage('assistant', 'Chat is not configured yet. Add a Claude API key to enable Q&A.');
+      conversation.push({ role: 'assistant', content: '[API key not configured]' });
+      isStreaming = false;
+      return;
+    }
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key':                              CLAUDE_API_KEY,
+        'anthropic-version':                      '2023-06-01',
+        'content-type':                           'application/json',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model:      CLAUDE_MODEL,
+        max_tokens: 400,
+        system:     systemPrompt,
+        messages:   conversation,
+        stream:     true,
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+
+    thinkingEl.remove();
+    const textEl = appendMessage('assistant', '');
+
+    const reader  = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer    = '';
+    let fullText  = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const event = JSON.parse(data);
+          if (event.type === 'content_block_delta' && event.delta?.type === 'text_delta') {
+            fullText += event.delta.text;
+            textEl.textContent = fullText;
+            document.getElementById('chat-messages').scrollTop = 9999;
+          }
+        } catch {}
+      }
+    }
+
+    conversation.push({ role: 'assistant', content: fullText });
+
+    // Check for data sheet offer
+    const offerFacility = trackMentions(fullText + ' ' + conversation.map(m=>m.content).join(' '));
+    if (offerFacility) {
+      setTimeout(() => {
+        appendMessage('assistant',
+          `Would you like to see a full data sheet for ${offerFacility.name}?`,
+          offerFacility.id);
+      }, 600);
+    }
+
+  } catch (err) {
+    console.error(err);
+    thinkingEl?.remove();
+    appendMessage('assistant', 'Something went wrong. Please try again.');
+  }
+
+  isStreaming = false;
+}
+
+// ── Data Sheet ─────────────────────────────────────────────────────────────
+function showDataSheet(facilityId) {
+  const f = allFacilities.find(x => String(x.id) === String(facilityId));
+  if (!f) return;
+
+  const temp = (f.temp_min_f != null && f.temp_max_f != null)
+    ? `${f.temp_min_f}°F to ${f.temp_max_f}°F` : '—';
+
+  const caps = [
+    f.rail_access   && (f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail Access'),
+    f.quick_freeze  && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
+    f.automated     && 'Automated',
+    f.layer_pick    && 'Layer Pick',
+    f.repack        && 'Repack',
+    f.export_import && 'Export / Import',
+    f.organic       && 'Organic',
+    f.dedicated     && 'Dedicated',
+  ].filter(Boolean);
+
+  const certs = [
+    f.brcgs && 'BRCGS', f.usda && 'USDA', f.fda && 'FDA', f.sqf && 'SQF',
+  ].filter(Boolean);
+
+  function contactBlock(title, name, email, phone) {
+    if (!name && !email && !phone) {
+      return `<div class="ds-contact-block">
+        <div class="ds-contact-title">${title}</div>
+        <div class="ds-contact-empty">Contact info not on file</div>
+      </div>`;
+    }
+    return `<div class="ds-contact-block">
+      <div class="ds-contact-title">${title}</div>
+      ${name  ? `<div class="ds-contact-name">${esc(name)}</div>`  : ''}
+      ${email ? `<div class="ds-contact-email">${esc(email)}</div>` : ''}
+      ${phone ? `<div class="ds-contact-phone">${esc(phone)}</div>` : ''}
+    </div>`;
+  }
+
+  document.getElementById('datasheet-panel').innerHTML = `
+    <div class="ds-header">
+      <div>
+        <div class="ds-title">${esc(f.name)}</div>
+        <div class="ds-location">${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</div>
+      </div>
+      <button class="ds-close" onclick="closeDataSheet()">✕</button>
+    </div>
+    <div class="ds-body">
+
+      <div>
+        <div class="ds-section-label">Capacity &amp; Temperature</div>
+        <div class="ds-grid">
+          <div class="ds-item">
+            <label>Pallet Positions</label>
+            <span>${f.pallet_positions ? Number(f.pallet_positions).toLocaleString() : '—'}</span>
+          </div>
+          <div class="ds-item">
+            <label>Square Footage</label>
+            <span>${f.square_footage ? Number(f.square_footage).toLocaleString() + ' sq ft' : '—'}</span>
+          </div>
+          <div class="ds-item">
+            <label>Temperature Range</label>
+            <span>${temp}</span>
+          </div>
+          <div class="ds-item">
+            <label>Phone</label>
+            <span>${f.phone || '—'}</span>
+          </div>
+        </div>
+      </div>
+
+      ${caps.length ? `
+      <div>
+        <div class="ds-section-label">Capabilities</div>
+        <div class="ds-badges">
+          ${caps.map(c => `<span class="badge badge-default">${c}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${certs.length ? `
+      <div>
+        <div class="ds-section-label">Certifications</div>
+        <div class="ds-badges">
+          ${certs.map(c => `<span class="badge badge-rail">${c}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <div>
+        <div class="ds-section-label">Contacts</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          ${contactBlock('Warehouse Contact',
+            f.warehouse_contact_name, f.warehouse_contact_email, f.warehouse_contact_phone)}
+          ${contactBlock('Sales Contact',
+            f.sales_contact_name, f.sales_contact_email, f.sales_contact_phone)}
+        </div>
+      </div>
+
+    </div>`;
+
+  document.getElementById('datasheet-overlay').classList.add('open');
+}
+
+function closeDataSheet() {
+  document.getElementById('datasheet-overlay').classList.remove('open');
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
 function esc(s) {
   if (!s) return '';
   return String(s)
@@ -437,79 +912,35 @@ function esc(s) {
     .replace(/"/g,'&quot;');
 }
 
-function matchesFacility(f, q) {
-  q = q.toLowerCase().trim();
-  if (!q) return true;
-  const text = [
-    f.city, f.state, f.name, f.rail_carrier,
-    f.rail_access    ? 'rail rail access'      : '',
-    f.quick_freeze   ? 'quick freeze'          : '',
-    f.automated      ? 'automated automation'  : '',
-    f.organic        ? 'organic'               : '',
-    f.repack         ? 'repack'                : '',
-    f.export_import  ? 'export import'         : '',
-    f.brcgs          ? 'brcgs'                 : '',
-    f.layer_pick     ? 'layer pick'            : '',
-    f.dedicated      ? 'dedicated'             : '',
-    f.usda           ? 'usda'                  : '',
-    f.fda            ? 'fda'                   : '',
-    f.sqf            ? 'sqf'                   : '',
-  ].filter(Boolean).join(' ').toLowerCase();
-  return text.includes(q);
-}
-
-function initMarquee(facilities) {
-  const track = document.getElementById('marquee-track');
-  const html  = facilities.map(cardHTML).join('');
-  track.innerHTML = html + html;
-}
-
-function renderSearch(query) {
-  const marqueeSection = document.getElementById('marquee-section');
-  const searchResults  = document.getElementById('search-results');
-  const hoverHint      = document.getElementById('hover-hint');
-  const countEl        = document.getElementById('facility-count');
-
-  if (!query.trim()) {
-    marqueeSection.style.display = '';
-    searchResults.classList.remove('active');
-    hoverHint.style.display = '';
-    countEl.textContent = `${allFacilities.length} active facilities`;
-    return;
-  }
-
-  marqueeSection.style.display = 'none';
-  hoverHint.style.display = 'none';
-  searchResults.classList.add('active');
-
-  const matches = allFacilities.filter(f => matchesFacility(f, query));
-  countEl.textContent = `${matches.length} of ${allFacilities.length} facilities`;
-
-  if (matches.length === 0) {
-    searchResults.innerHTML = '<div class="no-results">No facilities match your search.</div>';
-  } else {
-    searchResults.innerHTML = matches.map(cardHTML).join('');
-  }
-}
-
+// ── Init ───────────────────────────────────────────────────────────────────
 async function init() {
   try {
     allFacilities = await fetchFacilities();
+    systemPrompt  = buildSystemPrompt(allFacilities);
 
-    document.getElementById('loading-state').style.display  = 'none';
-    document.getElementById('marquee-section').style.display = '';
-    document.getElementById('facility-count').textContent    = `${allFacilities.length} active facilities`;
+    document.getElementById('loading-state').style.display = 'none';
+    const main = document.getElementById('main-content');
+    main.style.display = 'flex';
+    main.style.flexDirection = 'column';
+    main.style.height = '100%';
 
-    initMarquee(allFacilities);
+    document.getElementById('footer-text').textContent =
+      `${allFacilities.length} Facilities — Always Available`;
 
-    document.getElementById('search-input').addEventListener('input', e => {
-      renderSearch(e.target.value);
+    initMarquee();
+
+    const input  = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send');
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+    document.getElementById('datasheet-overlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeDataSheet();
     });
 
   } catch (err) {
     console.error(err);
-    document.getElementById('loading-state').style.display = 'none';
-    document.getElementById('error-state').style.display   = '';
+    document.getElementById('loading-state').textContent = 'Failed to load. Please try again.';
   }
 }
 
