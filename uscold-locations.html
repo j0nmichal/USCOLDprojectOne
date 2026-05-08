@@ -509,6 +509,30 @@
   </div><!-- /main-content -->
 </div><!-- /page -->
 
+<!-- API Key Prompt -->
+<div class="datasheet-overlay" id="key-prompt-overlay">
+  <div class="datasheet-panel" style="max-width:420px;">
+    <div class="ds-header">
+      <div>
+        <div class="ds-title">Chat Setup</div>
+        <div class="ds-location">Enter your Claude API key — stored locally, never sent to GitHub</div>
+      </div>
+      <button class="ds-close" onclick="document.getElementById('key-prompt-overlay').classList.remove('open')">✕</button>
+    </div>
+    <div class="ds-body">
+      <div class="field-group" style="display:flex;flex-direction:column;gap:8px;">
+        <input id="key-input" type="password"
+          style="background:rgba(200,232,245,0.04);border:1px solid rgba(168,191,208,0.2);color:#F0F6FA;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:10px 12px;border-radius:4px;outline:none;width:100%;"
+          placeholder="sk-ant-api03-…">
+        <button onclick="saveKey()"
+          style="background:#00D4FF;color:#0A1628;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:10px;border:none;border-radius:4px;cursor:pointer;">
+          Save Key &amp; Start Chatting
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Data Sheet -->
 <div class="datasheet-overlay" id="datasheet-overlay">
   <div class="datasheet-panel" id="datasheet-panel"></div>
@@ -518,7 +542,7 @@
 // ── Config ─────────────────────────────────────────────────────────────────
 // NOTE: this key will be visible in page source — set a usage limit in your
 // Anthropic dashboard to cap exposure.
-const CLAUDE_API_KEY  = 'YOUR_CLAUDE_API_KEY_HERE';
+const CLAUDE_API_KEY  = localStorage.getItem('uscold_claude_key') || '';
 const SUPABASE_URL    = 'https://ypqeekmwqkafknajxuki.supabase.co';
 const SUPABASE_KEY    = 'sb_publishable_KZ6JO3EYjDCPkjzp8Ygs3A_iVQqFB81';
 const CLAUDE_MODEL    = 'claude-haiku-4-5-20251001';
@@ -718,11 +742,10 @@ async function sendMessage() {
   const thinkingEl = appendThinking();
 
   try {
-    if (!CLAUDE_API_KEY || CLAUDE_API_KEY === 'YOUR_CLAUDE_API_KEY_HERE') {
+    if (!CLAUDE_API_KEY) {
       thinkingEl.remove();
-      appendMessage('assistant', 'Chat is not configured yet. Add a Claude API key to enable Q&A.');
-      conversation.push({ role: 'assistant', content: '[API key not configured]' });
       isStreaming = false;
+      showKeyPrompt();
       return;
     }
 
@@ -902,6 +925,22 @@ function showDataSheet(facilityId) {
 
 function closeDataSheet() {
   document.getElementById('datasheet-overlay').classList.remove('open');
+}
+
+function showKeyPrompt() {
+  document.getElementById('key-prompt-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('key-input').focus(), 100);
+}
+
+function saveKey() {
+  const key = document.getElementById('key-input').value.trim();
+  if (!key.startsWith('sk-ant-')) {
+    document.getElementById('key-input').style.borderColor = '#f87171';
+    return;
+  }
+  localStorage.setItem('uscold_claude_key', key);
+  document.getElementById('key-prompt-overlay').classList.remove('open');
+  location.reload();
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
