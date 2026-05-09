@@ -828,6 +828,13 @@ function renderForm(f) {
         </div>
         <div class="form-header-right">
           <div class="published-row">
+            <span class="published-label">Space Available</span>
+            ${toggle('space_available', '', !!d.space_available)}
+            <span class="published-state ${d.space_available ? 'live' : 'draft'}" id="space-available-state">
+              ${d.space_available ? 'YES' : 'NO'}
+            </span>
+          </div>
+          <div class="published-row">
             <span class="published-label">Published</span>
             ${toggle('published', '', !!d.published)}
             <span class="published-state ${d.published ? 'live' : 'draft'}" id="published-state">
@@ -969,6 +976,12 @@ function renderForm(f) {
     document.getElementById('qf-auto-field').style.display = this.checked ? '' : 'none';
   });
 
+  form.querySelector('[name="space_available"]').addEventListener('change', function () {
+    const el = document.getElementById('space-available-state');
+    el.textContent = this.checked ? 'YES' : 'NO';
+    el.className   = `published-state ${this.checked ? 'live' : 'draft'}`;
+  });
+
   form.querySelector('[name="published"]').addEventListener('change', function () {
     const el = document.getElementById('published-state');
     el.textContent  = this.checked ? 'LIVE' : 'DRAFT';
@@ -1007,7 +1020,7 @@ function getFormPayload() {
   const boolFields = [
     'rail_access','quick_freeze','quick_freeze_auto','automated',
     'layer_pick','repack','export_import','organic','dedicated',
-    'brcgs','usda','fda','sqf','published'
+    'brcgs','usda','fda','sqf','published','space_available'
   ];
   const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f'];
   const payload    = {};
