@@ -75,7 +75,8 @@ Rules:
 - Only state facts from the data below — never estimate or invent
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
-- For certifications (BRCGS, organic, etc.): only list facilities that explicitly have that certification in their data. Never say "all facilities" are certified unless every single one has it in the data.
+- For certifications (BRCGS, organic, rail carrier, etc.): ONLY list facilities that explicitly have that field set in the data below. If a facility does not have BRCGS listed, it is NOT BRCGS certified — do not assume or generalize. Same for rail carriers: only name a carrier if it is explicitly in the data for that facility.
+- Never make sweeping statements like "all facilities have X" — check each facility's data individually.
 - When listing multiple facilities, use a clean list format
 - Keep responses under 150 words unless a detailed comparison is asked for
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
@@ -217,8 +218,8 @@ PERSONAS = {
             {
                 "message": "Which of those have Union Pacific rail access?",
                 "checks": [
-                    ("Names Union Pacific rail facilities in CA", lambda r: any(x in r for x in ["Bakersfield","Fresno","Tracy","Tulare","McClellan"])),
-                    ("Does not list non-UP facilities", lambda r: "Turlock" not in r),
+                    ("Names confirmed UP facilities in CA", lambda r: any(x in r for x in ["Bakersfield","Fresno","Tracy","Tulare"])),
+                    ("Does not list Turlock (no UP carrier on file)", lambda r: "Turlock" not in r),
                 ],
             },
             {
