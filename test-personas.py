@@ -60,8 +60,10 @@ def build_system_prompt(facilities):
         if f.get("rail_access"):
             obj["rail"] = True
             if f.get("rail_carrier"): obj["rail_carrier"] = f["rail_carrier"]
-        if caps:  obj["capabilities"]   = caps
-        if certs: obj["certifications"] = certs
+        obj["brcgs"] = bool(f.get("brcgs"))
+        if caps: obj["capabilities"] = caps
+        other_certs = [c for c in certs if c != "BRCGS"]
+        if other_certs: obj["certifications"] = other_certs
         data.append(obj)
 
     return f"""You are the US Cold virtual assistant. US Cold operates cold storage facilities across the United States.

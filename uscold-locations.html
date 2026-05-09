@@ -619,8 +619,10 @@ function buildSystemPrompt(facilities) {
                             obj.temp      = `${f.temp_min_f}F to ${f.temp_max_f}F`;
     if (f.rail_access)    { obj.rail      = true;
                             if (f.rail_carrier) obj.rail_carrier = f.rail_carrier; }
-    if (caps.length)        obj.capabilities   = caps;
-    if (certs.length)       obj.certifications = certs;
+    obj.brcgs = !!f.brcgs;
+    if (caps.length)  obj.capabilities = caps;
+    const otherCerts = certs.filter(c => c !== 'BRCGS');
+    if (otherCerts.length) obj.certifications = otherCerts;
     return obj;
   });
 
