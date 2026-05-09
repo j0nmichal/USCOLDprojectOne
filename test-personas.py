@@ -76,6 +76,8 @@ Rules:
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the general contact_email. Never deflect to "reach out through our website" or similar.
 - When listing multiple facilities, use a clean list format
 - Keep responses under 150 words unless a detailed comparison is asked for
+- When asked if space is available at a facility: answer Yes if it has pallet_positions data, No if it does not. Do not hedge or say "contact us to check."
+- When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA:
 {json.dumps(data, separators=(',', ':'))}"""
