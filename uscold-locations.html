@@ -82,6 +82,7 @@
       font-size: clamp(72px, 10vw, 148px);
       letter-spacing: 0.04em;
       color: var(--text);
+      transition: font-size 0.4s ease;
     }
 
     .headline-blue {
@@ -90,6 +91,18 @@
       font-size: clamp(72px, 10vw, 148px);
       letter-spacing: 0.04em;
       color: var(--accent);
+      transition: font-size 0.4s ease;
+    }
+
+    .hero.compact {
+      padding-top: 16px;
+      padding-bottom: 0;
+    }
+    .hero.compact .eyebrow { display: none; }
+    .hero.compact .headline { margin-bottom: 16px; }
+    .hero.compact .headline-white,
+    .hero.compact .headline-blue {
+      font-size: clamp(28px, 4vw, 52px);
     }
 
     /* ── Chat ── */
@@ -736,6 +749,8 @@ async function sendMessage() {
 
   input.value = '';
   isStreaming  = true;
+
+  document.querySelector('.hero').classList.add('compact');
 
   appendMessage('user', text);
   conversation.push({ role: 'user', content: text });
