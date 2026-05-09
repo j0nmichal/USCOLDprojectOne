@@ -74,7 +74,8 @@ Rules:
 - Be concise and direct. No filler phrases like "Great question!"
 - Only state facts from the data below — never estimate or invent
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
-- When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the general contact_email. Never deflect to "reach out through our website" or similar.
+- When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
+- For certifications (BRCGS, organic, etc.): only list facilities that explicitly have that certification in their data. Never say "all facilities" are certified unless every single one has it in the data.
 - When listing multiple facilities, use a clean list format
 - Keep responses under 150 words unless a detailed comparison is asked for
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
@@ -200,7 +201,73 @@ PERSONAS = {
                 ],
             },
         ]
-    }
+    },
+
+    "Logistics & Storage Manager": {
+        "description": "A logistics manager evaluating US Cold facilities for a new distribution contract. Focused on location, capacity, rail, automation, and certs.",
+        "turns": [
+            {
+                "message": "I need cold storage options in California close to major ports. What do you have?",
+                "checks": [
+                    ("Lists California facilities", lambda r: sum(1 for x in ["Bakersfield","Fresno","McClellan","Tracy","Tulare","Turlock"] if x in r) >= 2),
+                    ("Mentions at least one city", lambda r: any(x in r for x in ["CA","California","Bakersfield","Fresno","Tracy","Turlock","Tulare","McClellan"])),
+                    ("Does not hallucinate non-CA facilities", lambda r: "Ohio" not in r and "Texas" not in r),
+                ],
+            },
+            {
+                "message": "Which of those have Union Pacific rail access?",
+                "checks": [
+                    ("Names Union Pacific rail facilities in CA", lambda r: any(x in r for x in ["Bakersfield","Fresno","Tracy","Tulare","McClellan"])),
+                    ("Does not list non-UP facilities", lambda r: "Turlock" not in r),
+                ],
+            },
+            {
+                "message": "I need at least 70,000 pallet positions. Which facilities can handle that?",
+                "checks": [
+                    ("Returns qualifying facilities", lambda r: any(x in r for x in ["Fresno","McClellan","Tulare"])),
+                    ("Includes pallet counts", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not include sub-70k facilities", lambda r: "Harrisonburg" not in r and "Smyrna" not in r),
+                ],
+            },
+            {
+                "message": "Does McClellan have automated picking?",
+                "checks": [
+                    ("Confirms yes", lambda r: "yes" in r.lower() or "automat" in r.lower()),
+                    ("Does not say no or unknown", lambda r: "does not" not in r.lower() and "no automat" not in r.lower()),
+                ],
+            },
+            {
+                "message": "What temperature range does McClellan support? I'm storing frozen seafood.",
+                "checks": [
+                    ("Gives temperature range", lambda r: "F" in r and any(c.isdigit() for c in r)),
+                    ("Includes a sub-zero temp", lambda r: "-" in r),
+                    ("Does not fabricate a range", lambda r: "-20" in r or "20" in r),
+                ],
+            },
+            {
+                "message": "Is space available there?",
+                "checks": [
+                    ("Answers yes or no directly", lambda r: "yes" in r.lower()[:60] or "no" in r.lower()[:30]),
+                    ("Does not hedge", lambda r: "contact us to check" not in r.lower() and "reach out" not in r.lower()),
+                ],
+            },
+            {
+                "message": "Which facilities are BRCGS certified?",
+                "checks": [
+                    ("Lists BRCGS facilities", lambda r: any(x in r for x in ["Minooka","Laredo","Wilmington","McDonough","Syracuse"])),
+                    ("Does not invent non-BRCGS facilities", lambda r: "Fresno" not in r and "Covington" not in r),
+                ],
+            },
+            {
+                "message": "How do I get a quote for McClellan?",
+                "checks": [
+                    ("Gives a phone number or contact", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not say visit our website", lambda r: "visit our website" not in r.lower()),
+                    ("Routes to sales or facility contact", lambda r: "sales" in r.lower() or "contact" in r.lower() or "(" in r),
+                ],
+            },
+        ]
+    },
 }
 
 # ── Runner ───────────────────────────────────────────────────────────────────
