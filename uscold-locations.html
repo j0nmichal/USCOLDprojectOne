@@ -580,27 +580,8 @@ async function fetchFacilities() {
 
 // ── System prompt ──────────────────────────────────────────────────────────
 function buildSystemPrompt(facilities) {
-  const data = facilities.map(f => ({
-    name:                   f.name,
-    state:                  f.state,
-    city:                   f.city,
-    address:                f.address,
-    zip:                    f.zip,
-    phone:                  f.phone,
-    contact_email:          f.contact_email,
-    warehouse_contact:      f.warehouse_contact_name
-                              ? { name: f.warehouse_contact_name, email: f.warehouse_contact_email, phone: f.warehouse_contact_phone }
-                              : null,
-    sales_contact:          f.sales_contact_name
-                              ? { name: f.sales_contact_name, email: f.sales_contact_email, phone: f.sales_contact_phone }
-                              : null,
-    pallet_positions:       f.pallet_positions,
-    square_footage:         f.square_footage,
-    temp_range:             (f.temp_min_f != null && f.temp_max_f != null)
-                              ? `${f.temp_min_f}°F to ${f.temp_max_f}°F` : null,
-    rail_access:            f.rail_access,
-    rail_carrier:           f.rail_carrier,
-    capabilities: [
+  const data = facilities.map(f => {
+    const caps = [
       f.quick_freeze   && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
       f.automated      && 'Automated',
       f.layer_pick     && 'Layer Pick',
@@ -608,11 +589,39 @@ function buildSystemPrompt(facilities) {
       f.export_import  && 'Export/Import',
       f.organic        && 'Organic',
       f.dedicated      && 'Dedicated',
-    ].filter(Boolean),
-    certifications: [
+    ].filter(Boolean);
+    const certs = [
       f.brcgs && 'BRCGS', f.usda && 'USDA', f.fda && 'FDA', f.sqf && 'SQF',
-    ].filter(Boolean),
-  }));
+    ].filter(Boolean);
+
+    const obj = {
+      name:  f.name,
+      city:  f.city,
+      state: f.state,
+    };
+    if (f.address)       obj.address = f.address;
+    if (f.zip)           obj.zip     = f.zip;
+    if (f.phone)         obj.phone   = f.phone;
+    if (f.contact_email) obj.email   = f.contact_email;
+    if (f.warehouse_contact_name) obj.warehouse_contact = {
+      name: f.warehouse_contact_name,
+      email: f.warehouse_contact_email || undefined,
+      phone: f.warehouse_contact_phone || undefined,
+    };
+    if (f.sales_contact_name) obj.sales_contact = {
+      name: f.sales_contact_name,
+      email: f.sales_contact_email || undefined,
+      phone: f.sales_contact_phone || undefined,
+    };
+    if (f.pallet_positions) obj.pallets   = f.pallet_positions;
+    if (f.temp_min_f != null && f.temp_max_f != null)
+                            obj.temp      = `${f.temp_min_f}F to ${f.temp_max_f}F`;
+    if (f.rail_access)    { obj.rail      = true;
+                            if (f.rail_carrier) obj.rail_carrier = f.rail_carrier; }
+    if (caps.length)        obj.capabilities   = caps;
+    if (certs.length)       obj.certifications = certs;
+    return obj;
+  });
 
   return `You are the US Cold virtual assistant. US Cold operates cold storage facilities across the United States.
 
@@ -629,7 +638,7 @@ Rules:
 - Keep responses under 150 words unless a detailed comparison is asked for
 
 FACILITY DATA:
-${JSON.stringify(data, null, 1)}`;
+${JSON.stringify(data)}`;
 }
 
 // ── Marquee ────────────────────────────────────────────────────────────────
