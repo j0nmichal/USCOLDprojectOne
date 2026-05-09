@@ -54,6 +54,7 @@ def build_system_prompt(facilities):
                 "email": f.get("sales_contact_email"),
                 "phone": f.get("sales_contact_phone"),
             }.items() if v}
+        if f.get("space_available") is not None: obj["space_available"] = f["space_available"]
         if f.get("pallet_positions"): obj["pallets"] = f["pallet_positions"]
         if tmin is not None and tmax is not None: obj["temp"] = f"{tmin}F to {tmax}F"
         if f.get("rail_access"):
@@ -76,7 +77,7 @@ Rules:
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the general contact_email. Never deflect to "reach out through our website" or similar.
 - When listing multiple facilities, use a clean list format
 - Keep responses under 150 words unless a detailed comparison is asked for
-- When asked if space is available at a facility: answer Yes if it has pallet_positions data, No if it does not. Do not hedge or say "contact us to check."
+- When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA:
@@ -181,6 +182,21 @@ PERSONAS = {
                 "checks": [
                     ("Suggests Minooka or Wilmington IL", lambda r: "Minooka" in r or "Wilmington" in r),
                     ("Mentions automation", lambda r: "automat" in r.lower()),
+                ],
+            },
+            {
+                "message": "Is space available at the Fresno facility?",
+                "checks": [
+                    ("Answers yes directly", lambda r: r.lower().startswith("yes") or "yes" in r.lower()[:40]),
+                    ("Does not hedge or say contact us to check", lambda r: "contact us to check" not in r.lower() and "reach out" not in r.lower()),
+                ],
+            },
+            {
+                "message": "How much does storage cost there?",
+                "checks": [
+                    ("Acknowledges pricing varies", lambda r: "var" in r.lower() or "depend" in r.lower() or "pricing" in r.lower()),
+                    ("Gives sales contact or facility phone", lambda r: any(c.isdigit() for c in r) or "sales" in r.lower()),
+                    ("Does not give a made-up dollar amount", lambda r: "$" not in r and "per pallet" not in r.lower()),
                 ],
             },
         ]
