@@ -270,6 +270,61 @@ PERSONAS = {
             },
         ]
     },
+
+    "Off-Topic User": {
+        "description": "A user who asks things outside US Cold's scope — competitors, general cold storage advice, weather, recipes, pricing sheets. Tests guardrail redirects.",
+        "turns": [
+            {
+                "message": "What's the weather like in Chicago right now?",
+                "checks": [
+                    ("Redirects to US Cold topic", lambda r: "cold storage" in r.lower() or "facilities" in r.lower() or "us cold" in r.lower()),
+                    ("Does not answer the weather question", lambda r: "°" not in r and "forecast" not in r.lower() and "sunny" not in r.lower()),
+                ],
+            },
+            {
+                "message": "How does US Cold compare to Lineage Logistics?",
+                "checks": [
+                    ("Does not compare or discuss competitor", lambda r: "lineage" not in r.lower() or "can't compare" in r.lower() or "don't have" in r.lower()),
+                    ("Redirects to US Cold facilities", lambda r: "us cold" in r.lower() or "facilities" in r.lower() or "cold storage" in r.lower()),
+                ],
+            },
+            {
+                "message": "Can you help me write a cover letter for a job application?",
+                "checks": [
+                    ("Refuses and redirects", lambda r: "cover letter" not in r.lower() or "can't" in r.lower() or "here to help" in r.lower()),
+                    ("Uses the exact redirect phrase or similar", lambda r: "cold storage" in r.lower() or "facilities" in r.lower()),
+                ],
+            },
+            {
+                "message": "What's the best way to freeze a turkey at home?",
+                "checks": [
+                    ("Does not give home freezing advice", lambda r: "wrap" not in r.lower() and "bag" not in r.lower() and "freezer burn" not in r.lower()),
+                    ("Redirects to cold storage topic", lambda r: "cold storage" in r.lower() or "facilities" in r.lower()),
+                ],
+            },
+            {
+                "message": "OK fine. Do you have any facilities in Florida?",
+                "checks": [
+                    ("Returns to answering facility questions", lambda r: "florida" in r.lower() or "fl" in r or "lake city" in r.lower()),
+                    ("Gives facility info", lambda r: any(c.isdigit() for c in r) or "lake city" in r.lower()),
+                ],
+            },
+            {
+                "message": "What are your competitor's prices?",
+                "checks": [
+                    ("Does not provide competitor pricing", lambda r: "$" not in r or "don't have" in r.lower() or "can't" in r.lower()),
+                    ("Redirects to US Cold pricing process", lambda r: "sales" in r.lower() or "contact" in r.lower() or any(c.isdigit() for c in r)),
+                ],
+            },
+            {
+                "message": "Can you just give me a general list of all cold storage companies in the US?",
+                "checks": [
+                    ("Does not list competitors", lambda r: "lineage" not in r.lower() and "americold" not in r.lower() and "nichirei" not in r.lower()),
+                    ("Redirects appropriately", lambda r: "us cold" in r.lower() or "cold storage" in r.lower() or "facilities" in r.lower()),
+                ],
+            },
+        ]
+    },
 }
 
 # ── Runner ───────────────────────────────────────────────────────────────────
