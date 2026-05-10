@@ -603,6 +603,7 @@
     </div>
     <div class="topbar-right">
       <span class="save-status" id="save-status"></span>
+      <button class="btn btn-secondary" id="analytics-btn" onclick="showAnalytics()">Analytics</button>
       <button class="btn btn-primary" id="add-facility-btn">+ Add Facility</button>
     </div>
   </header>
@@ -658,6 +659,47 @@
     </div>
 
   </div><!-- /workspace -->
+
+  <!-- ── Analytics Panel ── -->
+  <div id="analytics-panel" style="display:none; position:fixed; inset:0; background:var(--bg); z-index:200; overflow-y:auto; padding:32px;">
+    <div style="max-width:960px; margin:0 auto;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px;">
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.06em; color:var(--text);">CHAT ANALYTICS</div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--mist); letter-spacing:0.1em; margin-top:4px;" id="analytics-range"></div>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <select id="analytics-days" style="background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:6px 10px; border-radius:4px;">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+            <option value="999">All time</option>
+          </select>
+          <button class="btn btn-secondary" onclick="hideAnalytics()">✕ Close</button>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div id="analytics-stats" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:28px;"></div>
+
+      <!-- Two column layout -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:28px;">
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--accent); margin-bottom:12px;">TOP QUESTIONS</div>
+          <div id="analytics-questions"></div>
+        </div>
+        <div>
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--accent); margin-bottom:12px;">MOST MENTIONED FACILITIES</div>
+          <div id="analytics-facilities"></div>
+        </div>
+      </div>
+
+      <!-- Recent conversations -->
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--accent); margin-bottom:12px;">RECENT CONVERSATIONS</div>
+      <div id="analytics-conversations"></div>
+    </div>
+  </div>
+
 </div><!-- /app -->
 
 <!-- ── Delete Confirmation Modal ── -->
@@ -1211,6 +1253,143 @@ async function init() {
 }
 
 init();
+
+// ── Analytics ───────────────────────────────────────────────────────────────
+function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function statCard(label, value, sub = '') {
+  return `<div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 20px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.1em; color:var(--mist); margin-bottom:8px;">${label}</div>
+    <div style="font-family:'Bebas Neue',sans-serif; font-size:32px; color:var(--accent); line-height:1;">${value}</div>
+    ${sub ? `<div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--mist); margin-top:6px;">${sub}</div>` : ''}
+  </div>`;
+}
+
+function barRow(label, count, max, color = 'var(--accent)') {
+  const pct = max ? Math.round((count / max) * 100) : 0;
+  return `<div style="margin-bottom:10px;">
+    <div style="display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--mist); margin-bottom:4px;">
+      <span style="color:var(--text); max-width:75%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(label)}</span>
+      <span>${count}</span>
+    </div>
+    <div style="height:3px; background:var(--border); border-radius:2px;">
+      <div style="height:100%; width:${pct}%; background:${color}; border-radius:2px;"></div>
+    </div>
+  </div>`;
+}
+
+async function fetchLogs(days) {
+  const since = new Date(Date.now() - days * 86400000).toISOString();
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/chat_logs?created_at=gte.${since}&order=created_at.desc&limit=2000`,
+    { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }}
+  );
+  return res.json();
+}
+
+function renderAnalytics(logs) {
+  if (!logs.length) {
+    document.getElementById('analytics-stats').innerHTML = `<div style="grid-column:1/-1; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--mist); padding:20px 0;">No conversations recorded yet.</div>`;
+    document.getElementById('analytics-questions').innerHTML = '';
+    document.getElementById('analytics-facilities').innerHTML = '';
+    document.getElementById('analytics-conversations').innerHTML = '';
+    return;
+  }
+
+  const userLogs = logs.filter(l => l.role === 'user');
+  const sessions = [...new Set(logs.map(l => l.session_id))];
+  const guardrails = logs.filter(l => l.guardrail_hit).length;
+
+  // Session lengths
+  const sessionTurns = {};
+  logs.forEach(l => {
+    if (!sessionTurns[l.session_id]) sessionTurns[l.session_id] = 0;
+    if (l.role === 'user') sessionTurns[l.session_id]++;
+  });
+  const turnCounts = Object.values(sessionTurns);
+  const avgTurns = turnCounts.length ? (turnCounts.reduce((a,b)=>a+b,0)/turnCounts.length).toFixed(1) : 0;
+  const dropAfterOne = turnCounts.filter(t => t === 1).length;
+
+  // Stats
+  document.getElementById('analytics-stats').innerHTML =
+    statCard('TOTAL SESSIONS', sessions.length) +
+    statCard('TOTAL QUESTIONS', userLogs.length) +
+    statCard('AVG TURNS / SESSION', avgTurns, `${dropAfterOne} sessions ended after 1 question`) +
+    statCard('GUARDRAIL REDIRECTS', guardrails);
+
+  // Top questions
+  const qCounts = {};
+  userLogs.forEach(l => {
+    const q = l.message.trim().toLowerCase().slice(0, 80);
+    qCounts[l.message.trim()] = (qCounts[l.message.trim()] || 0) + 1;
+  });
+  const topQ = Object.entries(qCounts).sort((a,b)=>b[1]-a[1]).slice(0, 10);
+  const maxQ = topQ[0]?.[1] || 1;
+  document.getElementById('analytics-questions').innerHTML =
+    topQ.map(([q, c]) => barRow(q, c, maxQ)).join('') || '<div style="color:var(--mist); font-size:11px;">None yet</div>';
+
+  // Top facilities
+  const fCounts = {};
+  logs.forEach(l => {
+    (l.facilities || []).forEach(f => { fCounts[f] = (fCounts[f] || 0) + 1; });
+  });
+  const topF = Object.entries(fCounts).sort((a,b)=>b[1]-a[1]).slice(0, 10);
+  const maxF = topF[0]?.[1] || 1;
+  document.getElementById('analytics-facilities').innerHTML =
+    topF.map(([f, c]) => barRow(f, c, maxF, 'var(--green)')).join('') || '<div style="color:var(--mist); font-size:11px;">None yet</div>';
+
+  // Recent conversations grouped by session
+  const bySession = {};
+  [...logs].reverse().forEach(l => {
+    if (!bySession[l.session_id]) bySession[l.session_id] = [];
+    bySession[l.session_id].push(l);
+  });
+
+  const recentSessions = Object.entries(bySession).slice(0, 15);
+  document.getElementById('analytics-conversations').innerHTML = recentSessions.map(([sid, msgs]) => {
+    const first = msgs[0];
+    const date = new Date(first.created_at).toLocaleString();
+    const turns = msgs.filter(m => m.role === 'user').length;
+    const hadGuardrail = msgs.some(m => m.guardrail_hit);
+    const facilities = [...new Set(msgs.flatMap(m => m.facilities || []))];
+
+    const thread = msgs.map(m => `
+      <div style="margin-bottom:8px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; color:${m.role==='user' ? 'var(--accent)' : 'var(--mist)'}; letter-spacing:0.08em; margin-bottom:3px;">
+          ${m.role === 'user' ? 'USER' : 'US COLD'}
+        </div>
+        <div style="font-family:'IBM Plex Sans',sans-serif; font-size:12px; color:var(--text); line-height:1.5; opacity:0.85;">${esc(m.message.slice(0, 300))}${m.message.length > 300 ? '…' : ''}</div>
+      </div>`).join('');
+
+    return `<details style="background:var(--surface); border:1px solid var(--border); border-radius:6px; margin-bottom:10px; overflow:hidden;">
+      <summary style="padding:14px 18px; cursor:pointer; display:flex; align-items:center; gap:12px; list-style:none; font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--mist);">
+        <span style="color:var(--text);">${date}</span>
+        <span>${turns} question${turns!==1?'s':''}</span>
+        ${facilities.length ? `<span style="color:var(--accent);">${facilities.join(', ')}</span>` : ''}
+        ${hadGuardrail ? `<span style="color:var(--red);">⚠ redirect</span>` : ''}
+      </summary>
+      <div style="padding:16px 18px; border-top:1px solid var(--border);">${thread}</div>
+    </details>`;
+  }).join('') || '<div style="color:var(--mist); font-size:11px;">No conversations yet</div>';
+}
+
+async function showAnalytics() {
+  document.getElementById('analytics-panel').style.display = 'block';
+  document.getElementById('analytics-days').onchange = () => loadAnalytics();
+  loadAnalytics();
+}
+
+function hideAnalytics() {
+  document.getElementById('analytics-panel').style.display = 'none';
+}
+
+async function loadAnalytics() {
+  const days = parseInt(document.getElementById('analytics-days').value);
+  document.getElementById('analytics-stats').innerHTML = `<div style="grid-column:1/-1; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--mist); padding:10px 0;">Loading…</div>`;
+  document.getElementById('analytics-range').textContent = `LAST ${days === 999 ? 'ALL TIME' : days + ' DAYS'}`;
+  const logs = await fetchLogs(days);
+  renderAnalytics(logs);
+}
 </script>
 </body>
 </html>
