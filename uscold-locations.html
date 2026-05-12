@@ -744,9 +744,9 @@ function appendThinking() {
 
 // ── Facility mention tracking ──────────────────────────────────────────────
 function trackMentions(text) {
+  // Only scan the current turn (user message + assistant response)
+  // to avoid re-counting facilities from earlier in the conversation
   const lower = text.toLowerCase();
-  let topFacility = null;
-  let topCount    = 0;
 
   allFacilities.forEach(f => {
     if (!f.name) return;
@@ -754,16 +754,20 @@ function trackMentions(text) {
     const cityLower = (f.city || '').toLowerCase();
     if (lower.includes(nameLower) || (cityLower.length > 3 && lower.includes(cityLower))) {
       facilityMentions[f.id] = (facilityMentions[f.id] || 0) + 1;
-      if (facilityMentions[f.id] > topCount) {
-        topCount    = facilityMentions[f.id];
-        topFacility = f;
-      }
     }
   });
 
-  if (topFacility && topCount >= 2 && !datasheetOffered.has(topFacility.id)) {
-    datasheetOffered.add(topFacility.id);
-    return topFacility;
+  // Offer data sheet only after 3 turns about the SAME facility
+  const top = Object.entries(facilityMentions)
+    .filter(([id, count]) => count >= 3 && !datasheetOffered.has(id))
+    .sort((a, b) => b[1] - a[1])[0];
+
+  if (top) {
+    const facility = allFacilities.find(f => String(f.id) === String(top[0]));
+    if (facility) {
+      datasheetOffered.add(top[0]);
+      return facility;
+    }
   }
   return null;
 }
@@ -841,8 +845,9 @@ async function sendMessage() {
     const guardrailHit = fullText.includes("I'm here to help with questions about US Cold");
     logMessage('assistant', fullText, guardrailHit);
 
-    // Check for data sheet offer
-    const offerFacility = trackMentions(fullText + ' ' + conversation.map(m=>m.content).join(' '));
+    // Check for data sheet offer — pass only this turn's text
+    const currentUserMsg = conversation.filter(m => m.role === 'user').slice(-1)[0]?.content || '';
+    const offerFacility = trackMentions(currentUserMsg + ' ' + fullText);
     if (offerFacility) {
       setTimeout(() => {
         appendMessage('assistant',
