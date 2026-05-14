@@ -647,6 +647,7 @@ If anyone asks about anything unrelated to US Cold or cold storage, respond with
 Rules:
 - Be concise and direct. No filler phrases like "Great question!"
 - "Racks", "racking", "rack space", and "slots" all mean pallet positions — answer accordingly
+- "MCP" means McClellan Park, CA — treat it as that facility in all questions
 - Only state facts from the data below — never estimate or invent
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
@@ -749,11 +750,15 @@ function trackMentions(text) {
   // to avoid re-counting facilities from earlier in the conversation
   const lower = text.toLowerCase();
 
+  // Aliases: short codes that map to a facility name fragment
+  const aliases = { 'mcp': 'mcclellan' };
+  const expandedLower = lower.replace(/\bmcp\b/g, 'mcclellan');
+
   allFacilities.forEach(f => {
     if (!f.name) return;
     const nameLower = f.name.toLowerCase();
     const cityLower = (f.city || '').toLowerCase();
-    if (lower.includes(nameLower) || (cityLower.length > 3 && lower.includes(cityLower))) {
+    if (expandedLower.includes(nameLower) || (cityLower.length > 3 && expandedLower.includes(cityLower))) {
       facilityMentions[f.id] = (facilityMentions[f.id] || 0) + 1;
     }
   });
