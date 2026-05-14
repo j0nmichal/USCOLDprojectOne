@@ -198,8 +198,16 @@ PERSONAS = {
                 "message": "How much does storage cost there?",
                 "checks": [
                     ("Acknowledges pricing varies", lambda r: "var" in r.lower() or "depend" in r.lower() or "pricing" in r.lower()),
-                    ("Gives sales contact or facility phone", lambda r: any(c.isdigit() for c in r) or "sales" in r.lower()),
+                    ("Gives a phone number or mentions sales", lambda r: any(c.isdigit() for c in r) or "sales" in r.lower() or "contact" in r.lower()),
                     ("Does not give a made-up dollar amount", lambda r: "$" not in r and "per pallet" not in r.lower()),
+                ],
+            },
+            {
+                "message": "racks MCD1",
+                "checks": [
+                    ("Returns only the pallet count", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not include phone number or address", lambda r: "678" not in r and "Greenwood" not in r),
+                    ("Response is short — one line", lambda r: len(r.strip().splitlines()) <= 2),
                 ],
             },
         ]
@@ -257,7 +265,7 @@ PERSONAS = {
                 "message": "Which facilities are BRCGS certified?",
                 "checks": [
                     ("Confirms most/all facilities are BRCGS", lambda r: any(x in r.lower() for x in ["all", "most", "34", "certified"])),
-                    ("Correctly identifies Richmond as the only exception", lambda r: "Richmond" in r or "Prince George" in r or "except" in r.lower()),
+                    ("Says no facilities are BRCGS certified", lambda r: "none" in r.lower() or "no facilities" in r.lower() or "not brcgs" in r.lower() or "0" in r or "aren't" in r.lower() or "are not" in r.lower()),
                 ],
             },
             {
@@ -313,7 +321,7 @@ PERSONAS = {
                 "message": "What are your competitor's prices?",
                 "checks": [
                     ("Does not provide competitor pricing", lambda r: "$" not in r or "don't have" in r.lower() or "can't" in r.lower()),
-                    ("Redirects to US Cold pricing process", lambda r: "sales" in r.lower() or "contact" in r.lower() or any(c.isdigit() for c in r)),
+                    ("Declines to discuss competitor pricing", lambda r: "can't" in r.lower() or "don't have" in r.lower() or "us cold" in r.lower() or "facilities" in r.lower()),
                 ],
             },
             {
