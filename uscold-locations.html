@@ -647,7 +647,26 @@ If anyone asks about anything unrelated to US Cold or cold storage, respond with
 Rules:
 - Be concise and direct. No filler phrases like "Great question!"
 - "Racks", "racking", "rack space", and "slots" all mean pallet positions — answer accordingly
-- "MCP" means McClellan Park, CA — treat it as that facility in all questions
+- Facility abbreviations — always resolve these to the correct facility:
+  ARL=Arlington TX, BAK=Bakersfield CA,
+  BTH=Bethlehem PA (Emery St), BTM=Bethlehem Miller PA,
+  COV=Covington TN,
+  DLS=Dallas South TX, DLH=Dallas Halifax TX,
+  DNT=Denton TX, DCC=Denton Cold Creek TX,
+  FTW=Fort Worth TX, FRE=Fresno CA,
+  HAR=Harrisonburg VA, HAZ=Hazleton PA, HEB=Hebron IN,
+  LAV=La Vergne TN, LKC=Lake City FL,
+  LR1=Laredo I TX, LR2=Laredo II TX, LR3=Laredo Island St TX,
+  LEB=Lebanon IN, LUM=Lumberton NC,
+  MCP=McClellan Park CA,
+  MCD1=McDonough 1 GA, MCD2=McDonough 2 GA,
+  MIL=Milford DE, MIN=Minooka IL, OMA=Omaha NE,
+  QTE=Quakertown East PA, QTW=Quakertown West PA,
+  RVA=Richmond VA, SMY=Smyrna TN, SYR=Syracuse UT,
+  TRC=Tracy CA,
+  TLN=Tulare North CA, TLS=Tulare South CA,
+  TKN=Turlock North CA, TKS=Turlock South CA,
+  WAR=Warsaw NC, WIL=Wilmington IL
 - Only state facts from the data below — never estimate or invent
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
@@ -750,9 +769,32 @@ function trackMentions(text) {
   // to avoid re-counting facilities from earlier in the conversation
   const lower = text.toLowerCase();
 
-  // Aliases: short codes that map to a facility name fragment
-  const aliases = { 'mcp': 'mcclellan' };
-  const expandedLower = lower.replace(/\bmcp\b/g, 'mcclellan');
+  // Expand abbreviations before scanning so they match facility names
+  const ALIASES = {
+    'arl':'arlington',   'bak':'bakersfield',
+    'bth':'bethlehem',   'btm':'bethlehem miller',
+    'cov':'covington',
+    'dls':'dallas south','dlh':'dallas halifax',
+    'dnt':'denton',      'dcc':'denton cold creek',
+    'ftw':'fort worth',  'fre':'fresno',
+    'har':'harrisonburg','haz':'hazleton',  'heb':'hebron',
+    'lav':'la vergne',   'lkc':'lake city',
+    'lr1':'laredo i',    'lr2':'laredo ii',  'lr3':'laredo island',
+    'leb':'lebanon',     'lum':'lumberton',
+    'mcp':'mcclellan',
+    'mcd1':'mcdonough 1','mcd2':'mcdonough 2',
+    'mil':'milford',     'min':'minooka',   'oma':'omaha',
+    'qte':'quakertown east','qtw':'quakertown west',
+    'rva':'richmond',    'smy':'smyrna',    'syr':'syracuse',
+    'trc':'tracy',
+    'tln':'tulare north','tls':'tulare south',
+    'tkn':'turlock north','tks':'turlock south',
+    'war':'warsaw',      'wil':'wilmington',
+  };
+  let expandedLower = lower;
+  for (const [abbr, full] of Object.entries(ALIASES)) {
+    expandedLower = expandedLower.replace(new RegExp(`\\b${abbr}\\b`, 'g'), full);
+  }
 
   allFacilities.forEach(f => {
     if (!f.name) return;
