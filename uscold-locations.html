@@ -144,7 +144,7 @@
 
     .chat-msg-text {
       font-size: 13.5px;
-      line-height: 1.55;
+      line-height: 1.35;
       color: var(--text);
       white-space: pre-wrap;
     }
@@ -675,7 +675,7 @@ Rules:
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
 - For certifications and capabilities: only report what is explicitly in the data. The brcgs field is present on every facility as true or false — use it exactly.
-- When listing multiple facilities, put each one on its own line. Format: "Name, State — phone" with a blank line between entries if there are more than 3. Never run multiple facilities together on the same line.
+- When listing multiple facilities near a location, put each on its own line in this format: "~X hours: Name, State — Front Desk: (phone)". Use approximate drive time from the queried city. Never run multiple facilities together on the same line.
 - Keep responses under 150 words unless a detailed comparison is asked for
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
