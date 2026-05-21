@@ -61,7 +61,7 @@
 
     .eyebrow {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 16px;
+      font-size: 32px;
       font-weight: 500;
       letter-spacing: 0.45em;
       color: var(--accent);
@@ -217,7 +217,7 @@
 
     /* ── Marquee ── */
     .marquee-section {
-      height: 168px;
+      height: 210px;
       display: flex;
       align-items: center;
       padding: 8px 0;
@@ -252,9 +252,9 @@
       border: 1px solid var(--card-border);
       border-top: 2px solid transparent;
       border-radius: 5px;
-      width: 220px;
+      width: 275px;
       flex-shrink: 0;
-      padding: 16px 16px 14px;
+      padding: 20px 20px 18px;
       transition: border-top-color 0.2s, background 0.2s;
       cursor: default;
     }
@@ -266,7 +266,7 @@
 
     .card-state {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 9.5px;
+      font-size: 12px;
       font-weight: 500;
       letter-spacing: 0.18em;
       color: var(--accent);
@@ -275,7 +275,7 @@
     }
 
     .card-city {
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--text);
       white-space: nowrap;
@@ -285,7 +285,7 @@
     }
 
     .card-capacity {
-      font-size: 11px;
+      font-size: 14px;
       color: var(--mist);
       opacity: 0.55;
       margin-bottom: 8px;
@@ -299,11 +299,11 @@
 
     .badge {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 8px;
+      font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 2px 6px;
+      padding: 3px 8px;
       border-radius: 2px;
       white-space: nowrap;
     }
@@ -487,7 +487,7 @@
 
     <!-- Hero -->
     <div class="hero">
-      <div class="eyebrow"><span style="color:#F0F6FA;">US</span> <span style="color:#00D4FF;">COLD</span></div>
+      <div class="eyebrow"><span style="color:#F0F6FA;">US</span> <span style="color:#00D4FF;">COLD</span> <span style="color:#F0F6FA;">/ ONE</span></div>
       <div class="headline">
         <span class="headline-white">LOCATIONS</span>
         <span class="headline-blue">&amp; SERVICES</span>
@@ -626,6 +626,7 @@ function buildSystemPrompt(facilities) {
       phone: f.sales_contact_phone || undefined,
     };
     if (f.space_available != null) obj.space_available = f.space_available;
+    if (f.expansion && f.expansion !== 'N/A') obj.expansion = f.expansion;
     if (f.pallet_positions) obj.pallets   = f.pallet_positions;
     if (f.temp_min_f != null && f.temp_max_f != null)
                             obj.temp      = `${f.temp_min_f}F to ${f.temp_max_f}F`;
