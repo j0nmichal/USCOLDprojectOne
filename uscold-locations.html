@@ -627,6 +627,7 @@ function buildSystemPrompt(facilities) {
     };
     if (f.space_available != null) obj.space_available = f.space_available;
     if (f.expansion && f.expansion !== 'N/A') obj.expansion = f.expansion;
+    if (f.notes) obj.notes = f.notes;
     if (f.pallet_positions) obj.pallets   = f.pallet_positions;
     if (f.temp_min_f != null && f.temp_max_f != null)
                             obj.temp      = `${f.temp_min_f}F to ${f.temp_max_f}F`;
@@ -673,7 +674,7 @@ Rules:
 - When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
 - When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
 - For certifications and capabilities: only report what is explicitly in the data. The brcgs field is present on every facility as true or false — use it exactly.
-- When listing multiple facilities, use a clean list format
+- When listing multiple facilities, put each one on its own line. Format: "Name, State — phone" with a blank line between entries if there are more than 3. Never run multiple facilities together on the same line.
 - Keep responses under 150 words unless a detailed comparison is asked for
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
