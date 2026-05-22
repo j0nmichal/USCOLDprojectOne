@@ -919,6 +919,7 @@ function renderForm(f) {
             ${field('square_footage',   'Square Footage',   d.square_footage,   'number', '0', 'min="0"')}
             ${field('temp_min_f',       'Temp Min (°F)',     d.temp_min_f,       'number', '-20')}
             ${field('temp_max_f',       'Temp Max (°F)',     d.temp_max_f,       'number', '40')}
+            ${field('dock_doors',       'Dock Doors',        d.dock_doors,       'number', '0', 'min="0"')}
           </div>
         </div>
 
@@ -942,6 +943,7 @@ function renderForm(f) {
             ${toggle('export_import',  'Export / Import',  !!d.export_import)}
             ${toggle('organic',        'Organic',          !!d.organic)}
             ${toggle('dedicated',      'Dedicated',        !!d.dedicated)}
+            ${toggle('drop_lot',       'Drop Lot',         !!d.drop_lot)}
           </div>
 
           <!-- Rail carrier — conditional -->
@@ -1070,9 +1072,9 @@ function getFormPayload() {
   const boolFields = [
     'rail_access','quick_freeze','quick_freeze_auto','automated',
     'layer_pick','repack','export_import','organic','dedicated',
-    'brcgs','usda','fda','sqf','published','space_available'
+    'brcgs','usda','fda','sqf','published','space_available','drop_lot'
   ];
-  const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f'];
+  const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f','dock_doors'];
   const payload    = {};
 
   for (const [key, val] of fd.entries()) {

@@ -628,6 +628,8 @@ function buildSystemPrompt(facilities) {
     };
     if (f.space_available != null) obj.space_available = f.space_available;
     if (f.expansion && f.expansion !== 'N/A') obj.expansion = f.expansion;
+    if (f.dock_doors) obj.dock_doors = f.dock_doors;
+    if (f.drop_lot) obj.drop_lot = true;
     if (f.notes) obj.notes = f.notes;
     if (f.pallet_positions) obj.pallets   = f.pallet_positions;
     if (f.temp_min_f != null && f.temp_max_f != null)
