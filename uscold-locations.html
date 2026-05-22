@@ -688,7 +688,12 @@ Rules:
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
-FACILITY DATA:
+FACILITY DATA — pipe-delimited, one row per facility:
+Column key: name|city|state|addr|zip|phone|pallets|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes
+Caps: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated, LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
+Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
+exp: In-progress=expansion currently underway, Available=expansion space available, blank=no expansion
+
 ${HEADER}
 ${rows}`;
 }
