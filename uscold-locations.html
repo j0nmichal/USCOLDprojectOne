@@ -594,58 +594,54 @@ async function fetchFacilities() {
 
 // ── System prompt ──────────────────────────────────────────────────────────
 function buildSystemPrompt(facilities) {
-  const data = facilities.map(f => {
+  // Compact pipe-delimited table — one row per facility
+  // Caps codes: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated,
+  //             LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
+  // Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
+  // rail = carrier name, or NO if no rail; avail = Y/N/blank
+  const HEADER = 'name|city|state|addr|zip|phone|pallets|temp|rail|dock|avail|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes';
+
+  const rows = facilities.map(f => {
     const caps = [
-      f.quick_freeze   && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
-      f.automated      && 'Automated',
-      f.layer_pick     && 'Layer Pick',
-      f.repack         && 'Repack',
-      f.export_import  && 'Export/Import',
-      f.organic        && 'Organic',
-      f.dedicated      && 'Dedicated',
-    ].filter(Boolean);
+      f.quick_freeze   && (f.quick_freeze_auto ? 'AQF' : 'QF'),
+      f.automated      && 'AU',
+      f.layer_pick     && 'LP',
+      f.repack         && 'RPK',
+      f.export_import  && 'EXP',
+      f.organic        && 'ORG',
+      f.dedicated      && 'DED',
+    ].filter(Boolean).join(',');
+
     const certs = [
       f.brcgs && 'BRCGS', f.usda && 'USDA', f.fda && 'FDA', f.sqf && 'SQF',
-    ].filter(Boolean);
+    ].filter(Boolean).join(',');
 
-    const obj = {
-      name:  f.name,
-      city:  f.city,
-      state: f.state,
-    };
-    if (f.address)       obj.address = f.address;
-    if (f.zip)           obj.zip     = f.zip;
-    if (f.phone)         obj.phone   = f.phone;
-    if (f.contact_email) obj.email   = f.contact_email;
-    if (f.warehouse_contact_name) obj.warehouse_contact = {
-      name: f.warehouse_contact_name,
-      email: f.warehouse_contact_email || undefined,
-      phone: f.warehouse_contact_phone || undefined,
-    };
-    if (f.sales_contact_name) obj.sales_contact = {
-      name: f.sales_contact_name,
-      email: f.sales_contact_email || undefined,
-      phone: f.sales_contact_phone || undefined,
-    };
-    if (f.space_available != null) obj.space_available = f.space_available;
-    if (f.expansion && f.expansion !== 'N/A') obj.expansion = f.expansion;
-    if (f.dock_doors) obj.dock_doors = f.dock_doors;
-    if (f.drop_lot) obj.drop_lot = true;
-    if (f.coldshare) obj.coldshare = true;
-    if (f.freight) obj.freight = true;
-    if (f.phenix_ewms) obj.phenix_ewms = true;
-    if (f.notes) obj.notes = f.notes;
-    if (f.pallet_positions) obj.pallets   = f.pallet_positions;
-    if (f.temp_min_f != null && f.temp_max_f != null)
-                            obj.temp      = `${f.temp_min_f}F to ${f.temp_max_f}F`;
-    if (f.rail_access)    { obj.rail      = true;
-                            if (f.rail_carrier) obj.rail_carrier = f.rail_carrier; }
-    obj.brcgs = !!f.brcgs;
-    if (caps.length)  obj.capabilities = caps;
-    const otherCerts = certs.filter(c => c !== 'BRCGS');
-    if (otherCerts.length) obj.certifications = otherCerts;
-    return obj;
-  });
+    const flags = [
+      f.drop_lot    && 'DL',
+      f.coldshare   && 'CS',
+      f.freight     && 'FR',
+      f.phenix_ewms && 'PE',
+    ].filter(Boolean).join(',');
+
+    const temp = (f.temp_min_f != null && f.temp_max_f != null)
+      ? `${f.temp_min_f}/${f.temp_max_f}` : '';
+    const rail = f.rail_access ? (f.rail_carrier || 'YES') : 'NO';
+    const avail = f.space_available === true ? 'Y' : f.space_available === false ? 'N' : '';
+    const exp   = (f.expansion && f.expansion !== 'N/A') ? f.expansion : '';
+
+    return [
+      f.name, f.city, f.state,
+      f.address || '', f.zip || '', f.phone || '',
+      f.pallet_positions || '', temp, rail,
+      f.dock_doors || '', avail, exp,
+      caps, certs,
+      f.sales_contact_name  || '',
+      f.sales_contact_phone || '',
+      f.sales_contact_email || '',
+      flags,
+      f.notes || '',
+    ].join('|');
+  }).join('\n');
 
   return `You are the US Cold virtual assistant. US Cold operates cold storage facilities across the United States.
 
@@ -693,7 +689,8 @@ Rules:
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA:
-${JSON.stringify(data)}`;
+${HEADER}
+${rows}`;
 }
 
 // ── Marquee ────────────────────────────────────────────────────────────────
