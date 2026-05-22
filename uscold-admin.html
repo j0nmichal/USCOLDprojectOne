@@ -944,6 +944,9 @@ function renderForm(f) {
             ${toggle('organic',        'Organic',          !!d.organic)}
             ${toggle('dedicated',      'Dedicated',        !!d.dedicated)}
             ${toggle('drop_lot',       'Drop Lot',         !!d.drop_lot)}
+            ${toggle('coldshare',      'COLDshare',        !!d.coldshare)}
+            ${toggle('freight',        'Freight',          !!d.freight)}
+            ${toggle('phenix_ewms',    'Phenix eWMS',      !!d.phenix_ewms)}
           </div>
 
           <!-- Rail carrier — conditional -->
@@ -1072,7 +1075,8 @@ function getFormPayload() {
   const boolFields = [
     'rail_access','quick_freeze','quick_freeze_auto','automated',
     'layer_pick','repack','export_import','organic','dedicated',
-    'brcgs','usda','fda','sqf','published','space_available','drop_lot'
+    'brcgs','usda','fda','sqf','published','space_available','drop_lot',
+    'coldshare','freight','phenix_ewms'
   ];
   const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f','dock_doors'];
   const payload    = {};
