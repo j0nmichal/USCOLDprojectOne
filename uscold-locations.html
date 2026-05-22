@@ -869,7 +869,7 @@ async function sendMessage() {
         model:      CLAUDE_MODEL,
         max_tokens: 400,
         system:     systemPrompt,
-        messages:   conversation,
+        messages:   conversation.slice(-10),
       }),
     });
 
@@ -925,9 +925,12 @@ async function sendMessage() {
     }
 
   } catch (err) {
-    console.error(err);
+    console.error('Chat error:', err);
     thinkingEl?.remove();
-    appendMessage('assistant', 'Something went wrong. Please try again.');
+    const msg = err?.message?.includes('429') || err?.message?.includes('rate')
+      ? 'Rate limit hit — please wait a moment and try again.'
+      : 'Something went wrong. Please try again.';
+    appendMessage('assistant', msg);
   }
 
   isStreaming = false;
