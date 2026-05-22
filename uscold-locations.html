@@ -702,10 +702,14 @@ function cardHTML(f) {
   if (f.quick_freeze)   badges.push({ label: f.quick_freeze_auto ? 'Auto QF' : 'Quick Freeze', cls: 'badge-freeze' });
   if (f.automated)      badges.push({ label: 'Automated',      cls: 'badge-auto' });
   if (f.organic)        badges.push({ label: 'Organic',        cls: 'badge-organic' });
+  if (f.coldshare)      badges.push({ label: 'COLDshare',      cls: 'badge-default' });
+  if (f.freight)        badges.push({ label: 'Freight',        cls: 'badge-default' });
   if (f.repack)         badges.push({ label: 'Repack',         cls: 'badge-default' });
   if (f.export_import)  badges.push({ label: 'Export',         cls: 'badge-default' });
   if (f.brcgs)          badges.push({ label: 'BRCGS',          cls: 'badge-default' });
   if (f.layer_pick)     badges.push({ label: 'Layer Pick',     cls: 'badge-default' });
+  if (f.drop_lot)       badges.push({ label: 'Drop Lot',       cls: 'badge-default' });
+  if (f.phenix_ewms)    badges.push({ label: 'Phenix eWMS',    cls: 'badge-default' });
 
   const capacity = f.pallet_positions
     ? `${Number(f.pallet_positions).toLocaleString()} pallets`
