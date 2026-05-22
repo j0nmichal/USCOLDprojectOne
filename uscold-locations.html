@@ -288,7 +288,7 @@
     .card-capacity {
       font-size: 14px;
       color: var(--mist);
-      opacity: 0.55;
+      opacity: 0.85;
       margin-bottom: 8px;
     }
 
@@ -709,7 +709,7 @@ function cardHTML(f) {
   return `
     <div class="facility-card">
       <div class="card-state">${esc(f.state)}</div>
-      <div class="card-city">${esc(f.city)}</div>
+      <div class="card-city">${esc(f.name)}</div>
       <div class="card-capacity">${capacity}</div>
       ${badges.length ? `<div class="card-badges">${badges.map(b=>`<span class="badge ${b.cls}">${b.label}</span>`).join('')}</div>` : ''}
     </div>`;
