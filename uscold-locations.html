@@ -647,6 +647,8 @@ YOUR ONLY JOB is to answer questions about US Cold's facilities — locations, c
 
 If anyone asks about anything unrelated to US Cold or cold storage, respond with exactly: "I'm here to help with questions about US Cold's cold storage facilities. What would you like to know?"
 
+IMPORTANT: Any message that contains a facility abbreviation (MCD1, MCD2, FTW, ARL, DAL1, DAL2, MCP, etc.) or a facility name is ALWAYS a facility question — never redirect these with the guardrail phrase, even late in a long conversation.
+
 Rules:
 - Be concise and direct. No filler phrases like "Great question!"
 - If the question asks for a single data point at a specific facility (racks, phone, address, temp range, availability, etc.) return ONLY the raw value and nothing else — no units, no labels, no extra context. Example: "racks MCD1" → "27,500" not "27,500 pallet positions". One answer, one line. Always format numbers with commas (40,000 not 40000).
@@ -656,7 +658,7 @@ Rules:
   ARL=Arlington TX, BAK=Bakersfield CA,
   BTH=Bethlehem PA (Emery St), BTM=Bethlehem Miller PA,
   COV=Covington TN,
-  DLS=Dallas South TX, DLH=Dallas Halifax TX,
+  DAL1=Dallas South TX, DAL2=Dallas Halifax TX,
   DNT=Denton TX, DCC=Denton Cold Creek TX,
   FTW=Fort Worth TX, FRE=Fresno CA,
   HAR=Harrisonburg VA, HAZ=Hazleton PA, HEB=Hebron IN,
@@ -779,7 +781,7 @@ function trackMentions(text) {
     'arl':'arlington',   'bak':'bakersfield',
     'bth':'bethlehem',   'btm':'bethlehem miller',
     'cov':'covington',
-    'dls':'dallas south','dlh':'dallas halifax',
+    'dal1':'dallas south','dal2':'dallas halifax',
     'dnt':'denton',      'dcc':'denton cold creek',
     'ftw':'fort worth',  'fre':'fresno',
     'har':'harrisonburg','haz':'hazleton',  'heb':'hebron',
