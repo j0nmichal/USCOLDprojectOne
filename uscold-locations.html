@@ -1047,6 +1047,7 @@ function showDataSheet(facilityId) {
     <div class="ds-header">
       <div>
         <div class="ds-title">${esc(f.name)}</div>
+        ${f.region ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);opacity:0.5;margin-bottom:4px;">${esc(f.region)} Region</div>` : ''}
         <div class="ds-location" style="display:flex;align-items:center;gap:8px;">
           <span>${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</span>
           ${f.address ? `<button onclick="navigator.clipboard.writeText('${esc([f.address,f.city,f.state,f.zip].filter(Boolean).join(', '))}').then(()=>{this.style.color='var(--accent)';setTimeout(()=>this.style.color='',1200)})" title="Copy address" style="background:none;border:none;cursor:pointer;color:var(--mist);opacity:0.45;padding:0;font-size:12px;line-height:1;">⎘</button>` : ''}

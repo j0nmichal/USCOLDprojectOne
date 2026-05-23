@@ -898,6 +898,13 @@ function renderForm(f) {
             </div>
             ${field('state',         'State',         d.state,         'text', 'TX')}
             ${field('city',          'City',          d.city,          'text', 'City name')}
+            <div class="field-group">
+              <span class="field-label">Region</span>
+              <select class="field-input" name="region" style="padding:4px 8px;font-size:12px;">
+                ${['','Central','Northeast','Southern','Western'].map(r =>
+                  `<option value="${r}" ${d.region===r?'selected':''}>${r||'— Select —'}</option>`).join('')}
+              </select>
+            </div>
             <div class="field-group field-full">
               <span class="field-label">Address</span>
               <input class="field-input" type="text" name="address" value="${esc(d.address ?? '')}" placeholder="Street address">
