@@ -352,6 +352,7 @@
     .datasheet-overlay.open { display: flex; }
 
     .datasheet-panel {
+      position: relative;
       background: #0c1929;
       border: 1px solid rgba(0,212,255,0.15);
       border-radius: 8px;
@@ -361,6 +362,33 @@
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--border) transparent;
+    }
+
+    .ds-close-float {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+      background: rgba(10,22,40,0.75);
+      border: 1px solid rgba(200,232,245,0.2);
+      color: var(--text);
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      backdrop-filter: blur(4px);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .ds-close-float:hover { border-color: var(--accent); color: var(--accent); }
+
+    .ds-contacts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
 
     .ds-hero-img {
@@ -1039,6 +1067,7 @@ function showDataSheet(facilityId) {
   ].filter(Boolean);
 
   document.getElementById('datasheet-panel').innerHTML = `
+    <button class="ds-close-float" onclick="closeDataSheet()">✕</button>
     ${f.image_url
       ? `<img class="ds-hero-img" src="${esc(f.image_url)}" alt="${esc(f.name)}">`
       : `<div class="ds-hero-img" style="background:rgba(0,212,255,0.04);display:flex;align-items:center;justify-content:center;">
@@ -1046,17 +1075,14 @@ function showDataSheet(facilityId) {
          </div>`}
     <div class="ds-header">
       <div>
-        <div class="ds-title">${esc(f.name)}</div>
         ${f.region ? `<div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);opacity:0.5;margin-bottom:4px;">${esc(f.region)} Region</div>` : ''}
+        <div class="ds-title">${esc(f.name)}</div>
         <div class="ds-location" style="display:flex;align-items:center;gap:8px;">
           <span>${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</span>
           ${f.address ? `<button onclick="navigator.clipboard.writeText('${esc([f.address,f.city,f.state,f.zip].filter(Boolean).join(', '))}').then(()=>{this.style.color='var(--accent)';setTimeout(()=>this.style.color='',1200)})" title="Copy address" style="background:none;border:none;cursor:pointer;color:var(--mist);opacity:0.45;padding:0;font-size:12px;line-height:1;">⎘</button>` : ''}
         </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:12px;">
-        ${availIndicator}
-        <button class="ds-close" onclick="closeDataSheet()">✕</button>
-      </div>
+      <div>${availIndicator}</div>
     </div>
     <div class="ds-body">
 
@@ -1080,10 +1106,6 @@ function showDataSheet(facilityId) {
           <div class="ds-item">
             <label>Dock Doors</label>
             <span>${f.dock_doors ? f.dock_doors : '—'}</span>
-          </div>
-          <div class="ds-item">
-            <label>Phone</label>
-            <span>${f.phone || '—'}</span>
           </div>
         </div>
       </div>
@@ -1114,11 +1136,13 @@ function showDataSheet(facilityId) {
 
       <div>
         <div class="ds-section-label">Contacts</div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
+        <div class="ds-contacts-grid">
           ${contactBlock('Warehouse Contact',
-            f.warehouse_contact_name, f.warehouse_contact_email, f.warehouse_contact_phone)}
-          ${f.gm_name || f.gm_email || f.gm_phone ? contactBlock('General Manager',
-            f.gm_name, f.gm_email, f.gm_phone) : ''}
+            f.warehouse_contact_name || 'Front Desk',
+            f.warehouse_contact_email,
+            f.warehouse_contact_phone || f.phone)}
+          ${contactBlock('General Manager',
+            f.gm_name, f.gm_email, f.gm_phone)}
           ${contactBlock('Sales Contact',
             f.sales_contact_name, f.sales_contact_email, f.sales_contact_phone)}
         </div>
