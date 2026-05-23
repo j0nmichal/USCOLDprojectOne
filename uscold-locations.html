@@ -599,7 +599,7 @@ function buildSystemPrompt(facilities) {
   //             LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
   // Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
   // rail = carrier name, or NO if no rail; avail = Y/N/blank
-  const HEADER = 'name|city|state|addr|zip|phone|pallets|temp|rail|dock|avail|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes';
+  const HEADER = 'name|city|state|addr|zip|phone|pallets|cubic_ft|temp|rail|dock|avail|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes';
 
   const rows = facilities.map(f => {
     const caps = [
@@ -632,7 +632,7 @@ function buildSystemPrompt(facilities) {
     return [
       f.name, f.city, f.state,
       f.address || '', f.zip || '', f.phone || '',
-      f.pallet_positions || '', temp, rail,
+      f.pallet_positions || '', f.square_footage || '', temp, rail,
       f.dock_doors || '', avail, exp,
       caps, certs,
       f.sales_contact_name  || '',
@@ -690,7 +690,7 @@ Rules:
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA — pipe-delimited, one row per facility:
-Column key: name|city|state|addr|zip|phone|pallets|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes
+Column key: name|city|state|addr|zip|phone|pallets|cubic_ft|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes
 Caps: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated, LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
 Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
 exp: In-progress=expansion currently underway, Available=expansion space available, blank=no expansion
