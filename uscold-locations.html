@@ -458,6 +458,31 @@
     .ds-contact-phone { font-size: 12px; color: var(--mist); opacity: 0.7; }
     .ds-contact-empty { font-size: 12px; color: var(--mist); opacity: 0.35; font-style: italic; }
 
+    .ds-avail-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px;
+    }
+    .ds-avail-dot.green {
+      background: #22c55e;
+      box-shadow: 0 0 6px 2px rgba(34,197,94,0.5);
+    }
+    .ds-avail-dot.red {
+      background: #ef4444;
+      box-shadow: 0 0 6px 2px rgba(239,68,68,0.4);
+    }
+
+    .ds-expansion-banner {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(251,191,36,0.1);
+      border: 1px solid rgba(251,191,36,0.3);
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fbbf24;
+    }
+
     /* ── Loading ── */
     .loading-state {
       flex: 1;
@@ -977,15 +1002,37 @@ function showDataSheet(facilityId) {
     </div>`;
   }
 
+  const availDot = f.space_available === true
+    ? `<div class="ds-avail-dot green" title="Space Available"></div>`
+    : f.space_available === false
+    ? `<div class="ds-avail-dot red" title="No Space Available"></div>`
+    : '';
+
+  const expansionBanner = (f.expansion === 'In-progress' || f.expansion === 'Available')
+    ? `<div><div class="ds-expansion-banner">⬡ Expansion ${f.expansion}</div></div>` : '';
+
+  const services = [
+    f.rail_access   && (f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail'),
+    f.coldshare     && 'COLDshare',
+    f.freight       && 'Freight',
+    f.drop_lot      && 'Drop Lot',
+    f.phenix_ewms   && 'Phenix eWMS',
+  ].filter(Boolean);
+
   document.getElementById('datasheet-panel').innerHTML = `
     <div class="ds-header">
       <div>
         <div class="ds-title">${esc(f.name)}</div>
         <div class="ds-location">${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</div>
       </div>
-      <button class="ds-close" onclick="closeDataSheet()">✕</button>
+      <div style="display:flex;align-items:flex-start;gap:12px;">
+        ${availDot}
+        <button class="ds-close" onclick="closeDataSheet()">✕</button>
+      </div>
     </div>
     <div class="ds-body">
+
+      ${expansionBanner}
 
       <div>
         <div class="ds-section-label">Capacity &amp; Temperature</div>
@@ -995,12 +1042,16 @@ function showDataSheet(facilityId) {
             <span>${f.pallet_positions ? Number(f.pallet_positions).toLocaleString() : '—'}</span>
           </div>
           <div class="ds-item">
-            <label>Square Footage</label>
-            <span>${f.square_footage ? Number(f.square_footage).toLocaleString() + ' sq ft' : '—'}</span>
+            <label>Cubic Feet</label>
+            <span>${f.square_footage ? Number(f.square_footage).toLocaleString() : '—'}</span>
           </div>
           <div class="ds-item">
             <label>Temperature Range</label>
             <span>${temp}</span>
+          </div>
+          <div class="ds-item">
+            <label>Dock Doors</label>
+            <span>${f.dock_doors ? f.dock_doors : '—'}</span>
           </div>
           <div class="ds-item">
             <label>Phone</label>
@@ -1014,6 +1065,14 @@ function showDataSheet(facilityId) {
         <div class="ds-section-label">Capabilities</div>
         <div class="ds-badges">
           ${caps.map(c => `<span class="badge badge-default">${c}</span>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${services.length ? `
+      <div>
+        <div class="ds-section-label">Services</div>
+        <div class="ds-badges">
+          ${services.map(s => `<span class="badge badge-default">${s}</span>`).join('')}
         </div>
       </div>` : ''}
 
