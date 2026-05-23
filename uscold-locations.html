@@ -792,8 +792,8 @@ function cardHTML(f) {
       <div class="card-city">${esc(f.name)}</div>
       <div class="card-capacity">${capacity}</div>
       ${f.expansion === 'In-progress' ? `<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#f59e0b;">⬡ Expanding</span>
-        <div style="width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px 2px rgba(245,158,11,0.5);flex-shrink:0;"></div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#22c55e;">⬡ Expanding</span>
+        <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 5px 2px rgba(34,197,94,0.5);flex-shrink:0;"></div>
       </div>` : ''}
       ${badges.length ? `<div class="card-badges">${badges.map(b=>`<span class="badge ${b.cls}">${b.label}</span>`).join('')}</div>` : ''}
     </div>`;
@@ -1089,8 +1089,8 @@ function showDataSheet(facilityId) {
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
         ${availIndicator}
         ${f.expansion === 'In-progress' ? `<div style="display:flex;align-items:center;gap:7px;">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;">Expanding</span>
-          <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px 2px rgba(245,158,11,0.5);flex-shrink:0;"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#22c55e;">Expanding</span>
+          <div style="width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px 2px rgba(34,197,94,0.5);flex-shrink:0;"></div>
         </div>` : ''}
       </div>
     </div>
