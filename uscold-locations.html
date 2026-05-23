@@ -984,6 +984,7 @@ function showDataSheet(facilityId) {
     ? `${f.temp_min_f}°F to ${f.temp_max_f}°F` : '—';
 
   const caps = [
+    f.rail_access   && (f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail'),
     f.quick_freeze  && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
     f.automated     && 'Automated',
     f.layer_pick    && 'Layer Pick',
@@ -1019,8 +1020,8 @@ function showDataSheet(facilityId) {
        </div>`
     : f.space_available === false
     ? `<div style="display:flex;align-items:center;gap:7px;">
-         <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#ef4444;">No Space</span>
-         <div class="ds-avail-dot red"></div>
+         <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);opacity:0.5;">No Space</span>
+         <div class="ds-avail-dot" style="width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:0.35;"></div>
        </div>`
     : '';
 
@@ -1028,7 +1029,6 @@ function showDataSheet(facilityId) {
     ? `<div><div class="ds-expansion-banner">⬡ Expansion ${f.expansion}</div></div>` : '';
 
   const services = [
-    f.rail_access   && (f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail'),
     f.coldshare     && 'COLDshare',
     f.freight       && 'Freight',
     f.drop_lot      && 'Drop Lot',
