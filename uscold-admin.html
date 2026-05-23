@@ -1002,8 +1002,15 @@ function renderForm(f) {
           <div class="section-head">Media &amp; Notes</div>
           <div class="form-grid">
             <div class="field-group field-full">
-              <span class="field-label">Image URL</span>
-              <input class="field-input" type="url" name="image_url" value="${esc(d.image_url ?? '')}" placeholder="https://…">
+              <span class="field-label">Hero Image URL</span>
+              <input class="field-input" type="url" name="image_url" id="image_url_input"
+                value="${esc(d.image_url ?? '')}" placeholder="https://…"
+                oninput="updateImgPreview(this.value)">
+              <div id="img-preview-wrap" style="margin-top:8px;${d.image_url ? '' : 'display:none;'}">
+                <img id="img-preview" src="${esc(d.image_url ?? '')}"
+                  style="width:100%;max-height:160px;object-fit:cover;border-radius:4px;border:1px solid rgba(168,191,208,0.15);"
+                  onerror="this.parentElement.style.display='none'">
+              </div>
             </div>
             <div class="field-group field-full">
               <span class="field-label">Notes</span>
@@ -1270,6 +1277,18 @@ init();
 
 // ── Analytics ───────────────────────────────────────────────────────────────
 function esc(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function updateImgPreview(url) {
+  const wrap = document.getElementById('img-preview-wrap');
+  const img  = document.getElementById('img-preview');
+  if (!wrap || !img) return;
+  if (url) {
+    img.src = url;
+    wrap.style.display = '';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
 
 function statCard(label, value, sub = '') {
   return `<div style="background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:16px 20px;">
