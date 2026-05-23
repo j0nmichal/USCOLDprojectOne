@@ -984,7 +984,6 @@ function showDataSheet(facilityId) {
     ? `${f.temp_min_f}°F to ${f.temp_max_f}°F` : '—';
 
   const caps = [
-    f.rail_access   && (f.rail_carrier ? `Rail — ${f.rail_carrier}` : 'Rail Access'),
     f.quick_freeze  && (f.quick_freeze_auto ? 'Auto Quick Freeze' : 'Quick Freeze'),
     f.automated     && 'Automated',
     f.layer_pick    && 'Layer Pick',
@@ -1013,10 +1012,16 @@ function showDataSheet(facilityId) {
     </div>`;
   }
 
-  const availDot = f.space_available === true
-    ? `<div class="ds-avail-dot green" title="Space Available"></div>`
+  const availIndicator = f.space_available === true
+    ? `<div style="display:flex;align-items:center;gap:7px;">
+         <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#22c55e;">Space Available</span>
+         <div class="ds-avail-dot green"></div>
+       </div>`
     : f.space_available === false
-    ? `<div class="ds-avail-dot red" title="No Space Available"></div>`
+    ? `<div style="display:flex;align-items:center;gap:7px;">
+         <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#ef4444;">No Space</span>
+         <div class="ds-avail-dot red"></div>
+       </div>`
     : '';
 
   const expansionBanner = (f.expansion === 'In-progress' || f.expansion === 'Available')
@@ -1039,10 +1044,13 @@ function showDataSheet(facilityId) {
     <div class="ds-header">
       <div>
         <div class="ds-title">${esc(f.name)}</div>
-        <div class="ds-location">${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</div>
+        <div class="ds-location" style="display:flex;align-items:center;gap:8px;">
+          <span>${[f.address, f.city, f.state, f.zip].filter(Boolean).join(' · ')}</span>
+          ${f.address ? `<button onclick="navigator.clipboard.writeText('${esc([f.address,f.city,f.state,f.zip].filter(Boolean).join(', '))}').then(()=>{this.style.color='var(--accent)';setTimeout(()=>this.style.color='',1200)})" title="Copy address" style="background:none;border:none;cursor:pointer;color:var(--mist);opacity:0.45;padding:0;font-size:12px;line-height:1;">⎘</button>` : ''}
+        </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:12px;">
-        ${availDot}
+        ${availIndicator}
         <button class="ds-close" onclick="closeDataSheet()">✕</button>
       </div>
     </div>
@@ -1105,6 +1113,8 @@ function showDataSheet(facilityId) {
         <div style="display:flex; flex-direction:column; gap:10px;">
           ${contactBlock('Warehouse Contact',
             f.warehouse_contact_name, f.warehouse_contact_email, f.warehouse_contact_phone)}
+          ${f.gm_name || f.gm_email || f.gm_phone ? contactBlock('General Manager',
+            f.gm_name, f.gm_email, f.gm_phone) : ''}
           ${contactBlock('Sales Contact',
             f.sales_contact_name, f.sales_contact_email, f.sales_contact_phone)}
         </div>

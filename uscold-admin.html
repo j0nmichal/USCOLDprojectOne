@@ -988,6 +988,12 @@ function renderForm(f) {
               <span class="field-label">Warehouse Contact Phone</span>
               <input class="field-input" type="text" name="warehouse_contact_phone" value="${esc(d.warehouse_contact_phone ?? '')}" placeholder="(000) 000-0000">
             </div>
+            ${field('gm_name',  'General Manager Name',  d.gm_name,  'text', 'Full name')}
+            ${field('gm_email', 'General Manager Email', d.gm_email, 'email', 'email@uscold.com')}
+            <div class="field-group field-full">
+              <span class="field-label">General Manager Phone</span>
+              <input class="field-input" type="text" name="gm_phone" value="${esc(d.gm_phone ?? '')}" placeholder="(000) 000-0000">
+            </div>
             ${field('sales_contact_name',  'Sales Contact Name',  d.sales_contact_name,  'text', 'Full name')}
             ${field('sales_contact_email', 'Sales Contact Email', d.sales_contact_email, 'email', 'email@uscold.com')}
             <div class="field-group field-full">
