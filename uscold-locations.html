@@ -791,6 +791,10 @@ function cardHTML(f) {
       <div class="card-state">${esc(f.state)}</div>
       <div class="card-city">${esc(f.name)}</div>
       <div class="card-capacity">${capacity}</div>
+      ${f.expansion === 'In-progress' ? `<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:#f59e0b;">⬡ Expanding</span>
+        <div style="width:7px;height:7px;border-radius:50%;background:#f59e0b;box-shadow:0 0 5px 2px rgba(245,158,11,0.5);flex-shrink:0;"></div>
+      </div>` : ''}
       ${badges.length ? `<div class="card-badges">${badges.map(b=>`<span class="badge ${b.cls}">${b.label}</span>`).join('')}</div>` : ''}
     </div>`;
 }
@@ -1056,8 +1060,8 @@ function showDataSheet(facilityId) {
        </div>`
     : '';
 
-  const expansionBanner = (f.expansion === 'In-progress' || f.expansion === 'Available')
-    ? `<div><div class="ds-expansion-banner">⬡ Expansion ${f.expansion}</div></div>` : '';
+  const expansionBanner = f.expansion === 'Available'
+    ? `<div><div class="ds-expansion-banner">⬡ Expansion Available</div></div>` : '';
 
   const services = [
     f.coldshare     && 'COLDshare',
@@ -1082,7 +1086,13 @@ function showDataSheet(facilityId) {
           ${f.address ? `<button onclick="navigator.clipboard.writeText('${esc([f.address,f.city,f.state,f.zip].filter(Boolean).join(', '))}').then(()=>{this.style.color='var(--accent)';setTimeout(()=>this.style.color='',1200)})" title="Copy address" style="background:none;border:none;cursor:pointer;color:var(--mist);opacity:0.45;padding:0;font-size:12px;line-height:1;">⎘</button>` : ''}
         </div>
       </div>
-      <div>${availIndicator}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        ${availIndicator}
+        ${f.expansion === 'In-progress' ? `<div style="display:flex;align-items:center;gap:7px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;">Expanding</span>
+          <div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;box-shadow:0 0 6px 2px rgba(245,158,11,0.5);flex-shrink:0;"></div>
+        </div>` : ''}
+      </div>
     </div>
     <div class="ds-body">
 
