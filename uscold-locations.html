@@ -360,6 +360,15 @@
       scrollbar-color: var(--border) transparent;
     }
 
+    .ds-hero-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      border-radius: 8px 8px 0 0;
+    }
+
     .ds-header {
       padding: 28px 32px 20px;
       border-bottom: 1px solid rgba(168,191,208,0.08);
@@ -1022,6 +1031,7 @@ function showDataSheet(facilityId) {
   ].filter(Boolean);
 
   document.getElementById('datasheet-panel').innerHTML = `
+    ${f.image_url ? `<img class="ds-hero-img" src="${esc(f.image_url)}" alt="${esc(f.name)}">` : ''}
     <div class="ds-header">
       <div>
         <div class="ds-title">${esc(f.name)}</div>
