@@ -256,13 +256,15 @@
       width: 275px;
       flex-shrink: 0;
       padding: 20px 20px 18px;
-      transition: border-top-color 0.2s, background 0.2s;
-      cursor: default;
+      transition: border-top-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
     }
 
     .facility-card:hover {
       border-top-color: var(--accent);
-      background: rgba(200,232,245,0.055);
+      background: rgba(200,232,245,0.075);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,212,255,0.08);
     }
 
     .card-state {
@@ -745,7 +747,7 @@ function cardHTML(f) {
     : 'Contact for capacity';
 
   return `
-    <div class="facility-card">
+    <div class="facility-card" onclick="showDataSheet('${f.id}')" style="cursor:pointer;">
       <div class="card-state">${esc(f.state)}</div>
       <div class="card-city">${esc(f.name)}</div>
       <div class="card-capacity">${capacity}</div>
