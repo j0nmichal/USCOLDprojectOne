@@ -1031,7 +1031,11 @@ function showDataSheet(facilityId) {
   ].filter(Boolean);
 
   document.getElementById('datasheet-panel').innerHTML = `
-    ${f.image_url ? `<img class="ds-hero-img" src="${esc(f.image_url)}" alt="${esc(f.name)}">` : ''}
+    ${f.image_url
+      ? `<img class="ds-hero-img" src="${esc(f.image_url)}" alt="${esc(f.name)}">`
+      : `<div class="ds-hero-img" style="background:rgba(0,212,255,0.04);display:flex;align-items:center;justify-content:center;">
+           <img src="images/USCold_Logo_Shield_Blue.svg" style="width:48px;opacity:0.15;">
+         </div>`}
     <div class="ds-header">
       <div>
         <div class="ds-title">${esc(f.name)}</div>
