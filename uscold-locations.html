@@ -702,6 +702,11 @@ function buildSystemPrompt(facilities) {
       f.pallet_positions || '', f.square_footage || '', temp, rail,
       f.dock_doors || '', avail, exp,
       caps, certs,
+      f.warehouse_contact_name  || '',
+      f.warehouse_contact_phone || '',
+      f.gm_name  || '',
+      f.gm_phone || '',
+      f.gm_email || '',
       f.sales_contact_name  || '',
       f.sales_contact_phone || '',
       f.sales_contact_email || '',
@@ -747,8 +752,8 @@ Rules:
   TKN=Turlock North CA, TKS=Turlock South CA,
   WAR=Warsaw NC, WIL=Wilmington IL
 - Only state facts from the data below — never estimate or invent
-- When asked for a phone number: immediately give the facility's phone field value. If it is null or empty, say "No phone number on file for that facility."
-- When asked who to contact or for contact info: always give BOTH the warehouse contact AND the sales contact on separate lines, including name, phone, and email for each. If specific contacts are not set, give the facility phone number. Never say "visit our website", "reach out through our website", or any variation — always give a direct phone number instead.
+- When asked for a phone number (with no other qualifier): return "Front Desk: (phone)" using the phone field. If phone is empty say "No phone number on file for that facility."
+- When asked who to contact or for contact info: give all three contacts on separate lines — Warehouse Contact (wh_name if set, otherwise "Front Desk") with wh_phone or phone, General Manager (gm_name, gm_phone, gm_email), and Sales Contact (sales_name, sales_phone, sales_email). If a field is empty, omit that contact block. Never say "visit our website" — always give a direct phone number or email.
 - For certifications and capabilities: only report what is explicitly in the data. The brcgs field is present on every facility as true or false — use it exactly.
 - When listing multiple facilities near a location, put each on its own line in this format: "~X hours: Name, State — Front Desk: (phone)". Use approximate drive time from the queried city. Never run multiple facilities together on the same line.
 - Keep responses under 150 words unless a detailed comparison is asked for
@@ -757,7 +762,8 @@ Rules:
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA — pipe-delimited, one row per facility:
-Column key: name|city|state|addr|zip|phone|pallets|cubic_ft|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes
+Column key: name|city|state|addr|zip|phone|pallets|cubic_ft|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|wh_name|wh_phone|gm_name|gm_phone|gm_email|sales_name|sales_phone|sales_email|flags|notes
+phone = Front Desk number. wh_name/wh_phone = Warehouse Contact (if set, use name; otherwise label as Front Desk). gm_* = General Manager. sales_* = Sales Contact.
 Caps: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated, LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
 Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
 exp: In-progress=expansion currently underway, Available=expansion space available, blank=no expansion
