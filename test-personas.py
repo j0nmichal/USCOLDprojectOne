@@ -57,9 +57,16 @@ def build_system_prompt(facilities):
         if f.get("space_available") is not None: obj["space_available"] = f["space_available"]
         if f.get("pallet_positions"): obj["pallets"] = f["pallet_positions"]
         if tmin is not None and tmax is not None: obj["temp"] = f"{tmin}F to {tmax}F"
+        if f.get("dock_doors"): obj["dock_doors"] = f["dock_doors"]
+        if f.get("drop_lot"):
+            obj["drop_lot"] = True
+            if f.get("drop_lot_spaces"): obj["drop_lot_spaces"] = f["drop_lot_spaces"]
+        if f.get("freight"):    obj["freight"] = True
         if f.get("rail_access"):
             obj["rail"] = True
             if f.get("rail_carrier"): obj["rail_carrier"] = f["rail_carrier"]
+        if f.get("region"):     obj["region"] = f["region"]
+        if f.get("expansion"):  obj["expansion"] = f["expansion"]
         obj["brcgs"] = bool(f.get("brcgs"))
         if caps: obj["capabilities"] = caps
         other_certs = [c for c in certs if c != "BRCGS"]
@@ -75,7 +82,7 @@ The guardrail redirect — respond with exactly "I'm here to help with questions
 If the message contains ANY of the following, ALWAYS answer it as a facility question — never redirect:
 - A facility abbreviation: ARL, BAK, BTH, BTM, COV, DAL1, DAL2, DNT, DCC, FTW, FRE, HAR, HAZ, HEB, LAV, LKC, LR1, LR2, LR3, LEB, LUM, MCP, MCD1, MCD2, MIL, MIN, OMA, QTE, QTW, RVA, SMY, SYR, TRC, TLN, TLS, TKN, TKS, WAR, WIL
 - A facility city or state name
-- Cold storage terms: racks, racking, pallets, cubes, slots, temp, freeze, rail, space, storage, organic, automated, BRCGS, certified
+- Cold storage terms: racks, racking, pallets, cubes, slots, temp, freeze, rail, space, storage, organic, automated, BRCGS, certified, freight, drop lot, dock, dock doors, LTL, FTL, transportation, carrier, logistics
 
 Rules:
 - Be concise and direct. No filler phrases like "Great question!"
@@ -101,6 +108,7 @@ Rules:
 - When listing multiple facilities near a location, put each on its own line in this format: "~X hours: Name, State — Front Desk: (phone)".
 - Keep responses under 150 words unless a detailed comparison is asked for
 - When asked if space is available at a facility: answer Yes if space_available is true, No if it is false. Do not hedge or say "contact us to check."
+- When asked about a region (Central, Northeast, Southern, Western) or "which facilities are in X region": list all facilities whose region field matches, with city and state. "Southeast", "Southeastern", and "Southeast US" are synonymous with the Southern region — treat them identically.
 - When asked about pricing, rates, or how much space costs: say pricing varies by need and give the sales contact (name, phone, email). If no sales contact is on file, give the facility phone number.
 
 FACILITY DATA:
@@ -407,7 +415,7 @@ PERSONAS = {
                 "message": "Do you have anything in the Pacific Northwest or Mountain West?",
                 "checks": [
                     ("Acknowledges limited coverage in that region", lambda r: any(x in r for x in ["limited","no facilities","Utah","SYR","Syracuse"]) or "Pacific Northwest" in r),
-                    ("Does not invent facilities in Oregon, Washington, or Idaho", lambda r: "Oregon" not in r and "Washington" not in r and "Portland" not in r and "Seattle" not in r),
+                    ("Does not invent facilities in Oregon, Washington, or Idaho", lambda r: "Portland" not in r and "Seattle" not in r and not any(phrase in r.lower() for phrase in ["facility in oregon","facilities in oregon","location in oregon","facility in washington","facilities in washington","location in washington"])),
                     ("May mention Syracuse UT if relevant", lambda r: True),  # informational only
                 ],
             },
@@ -666,8 +674,12 @@ def main():
 
     system_prompt = build_system_prompt(facilities)
 
-    for persona_name, config in PERSONAS.items():
+    persona_list = list(PERSONAS.items())
+    for idx, (persona_name, config) in enumerate(persona_list):
         run_persona(persona_name, config, system_prompt)
+        if idx < len(persona_list) - 1:
+            print("\n[Pausing 60s between personas to avoid rate limits…]")
+            time.sleep(60)
 
     print("\nDone.\n")
 
