@@ -49,6 +49,7 @@ function uscold_create_table(): void {
         temp_min_f                SMALLINT                DEFAULT NULL,
         temp_max_f                SMALLINT                DEFAULT NULL,
         dock_doors                SMALLINT UNSIGNED       DEFAULT NULL,
+        drop_lot_spaces           SMALLINT UNSIGNED       DEFAULT NULL,
 
         -- Capabilities
         rail_access               TINYINT(1)     NOT NULL DEFAULT 0,
@@ -202,7 +203,7 @@ function uscold_fields(): array {
         'pallet_positions', 'square_footage', 'temp_min_f', 'temp_max_f', 'dock_doors',
         'rail_access', 'rail_carrier', 'quick_freeze', 'quick_freeze_auto',
         'automated', 'layer_pick', 'repack', 'export_import', 'organic', 'dedicated',
-        'drop_lot', 'coldshare', 'freight', 'phenix_ewms',
+        'drop_lot', 'drop_lot_spaces', 'coldshare', 'freight', 'phenix_ewms',
         'brcgs', 'usda', 'fda', 'sqf',
         'published', 'space_available', 'expansion',
         'image_url', 'notes',
@@ -218,11 +219,11 @@ function uscold_cast( array $row ): array {
     $bool_fields = [
         'rail_access', 'quick_freeze', 'quick_freeze_auto', 'automated', 'layer_pick',
         'repack', 'export_import', 'organic', 'dedicated',
-        'drop_lot', 'coldshare', 'freight', 'phenix_ewms',
+        'drop_lot', 'drop_lot_spaces', 'coldshare', 'freight', 'phenix_ewms',
         'brcgs', 'usda', 'fda', 'sqf', 'published',
     ];
     $nullable_bool_fields = [ 'space_available' ];
-    $int_fields = [ 'id', 'pallet_positions', 'square_footage', 'temp_min_f', 'temp_max_f', 'dock_doors' ];
+    $int_fields = [ 'id', 'pallet_positions', 'square_footage', 'temp_min_f', 'temp_max_f', 'dock_doors', 'drop_lot_spaces' ];
 
     foreach ( $bool_fields as $k ) {
         if ( array_key_exists( $k, $row ) ) {

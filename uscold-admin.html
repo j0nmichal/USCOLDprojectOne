@@ -951,6 +951,12 @@ function renderForm(f) {
             ${toggle('organic',        'Organic',          !!d.organic)}
             ${toggle('dedicated',      'Dedicated',        !!d.dedicated)}
             ${toggle('drop_lot',       'Drop Lot',         !!d.drop_lot)}
+            <div class="conditional-field" id="drop-lot-spaces-field" style="display:${d.drop_lot ? '' : 'none'}">
+              <div class="field-group">
+                <span class="field-label">Drop Lot Spaces</span>
+                <input class="field-input" type="number" name="drop_lot_spaces" value="${esc(d.drop_lot_spaces ?? '')}" placeholder="Number of spaces" min="0">
+              </div>
+            </div>
             ${toggle('coldshare',      'COLDshare',        !!d.coldshare)}
             ${toggle('freight',        'Freight',          !!d.freight)}
             ${toggle('phenix_ewms',    'Phenix eWMS',      !!d.phenix_ewms)}
@@ -1051,6 +1057,11 @@ function renderForm(f) {
     document.getElementById('qf-auto-field').style.display = this.checked ? '' : 'none';
   });
 
+  form.querySelector('[name="drop_lot"]').addEventListener('change', function () {
+    document.getElementById('drop-lot-spaces-field').style.display = this.checked ? '' : 'none';
+    if (!this.checked) form.querySelector('[name="drop_lot_spaces"]').value = '';
+  });
+
   form.querySelector('[name="space_available"]').addEventListener('change', function () {
     const el = document.getElementById('space-available-state');
     el.textContent = this.checked ? 'YES' : 'NO';
@@ -1098,7 +1109,7 @@ function getFormPayload() {
     'brcgs','usda','fda','sqf','published','space_available','drop_lot',
     'coldshare','freight','phenix_ewms'
   ];
-  const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f','dock_doors'];
+  const intFields  = ['pallet_positions','square_footage','temp_min_f','temp_max_f','dock_doors','drop_lot_spaces'];
   const payload    = {};
 
   for (const [key, val] of fd.entries()) {

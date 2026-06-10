@@ -664,7 +664,7 @@ function buildSystemPrompt(facilities) {
   // Compact pipe-delimited table — one row per facility
   // Caps codes: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated,
   //             LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
-  // Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
+  // Flags: DL=Drop Lot (DL(n)=with n spaces), CS=COLDshare, FR=Freight, PE=Phenix eWMS
   // rail = carrier name, or NO if no rail; avail = Y/N/blank
   const HEADER = 'name|city|state|addr|zip|phone|pallets|cubic_ft|temp|rail|dock|avail|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes';
 
@@ -684,7 +684,7 @@ function buildSystemPrompt(facilities) {
     ].filter(Boolean).join(',');
 
     const flags = [
-      f.drop_lot    && 'DL',
+      f.drop_lot    && (f.drop_lot_spaces ? `DL(${f.drop_lot_spaces})` : 'DL'),
       f.coldshare   && 'CS',
       f.freight     && 'FR',
       f.phenix_ewms && 'PE',
@@ -769,9 +769,9 @@ FACILITY DATA — pipe-delimited, one row per facility:
 Column key: name|city|state|addr|zip|phone|pallets|cubic_ft|temp(min/max °F)|rail(carrier or NO)|dock_doors|avail(Y/N)|exp|caps|certs|region|wh_name|wh_phone|wh_email|gm_name|gm_phone|gm_email|sales_name|sales_phone|sales_email|flags|notes
 phone = Front Desk number. region = Central/Northeast/Southern/Western. wh_* = Warehouse Contact (use name if set, otherwise "Front Desk"). gm_* = General Manager. sales_* = Sales Contact.
 exp: In-progress=expansion underway, Available=expansion space available, blank=none.
-Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS.
+Flags: DL=Drop Lot (DL(n)=Drop Lot with n spaces), CS=COLDshare, FR=Freight, PE=Phenix eWMS.
 Caps: QF=Quick Freeze, AQF=Auto Quick Freeze, AU=Automated, LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
-Flags: DL=Drop Lot, CS=COLDshare, FR=Freight, PE=Phenix eWMS
+Flags: DL=Drop Lot (DL(n)=Drop Lot with n spaces), CS=COLDshare, FR=Freight, PE=Phenix eWMS
 exp: In-progress=expansion currently underway, Available=expansion space available, blank=no expansion
 
 ${HEADER}
@@ -1078,7 +1078,7 @@ function showDataSheet(facilityId) {
   const services = [
     f.coldshare     && 'COLDshare',
     f.freight       && 'Freight',
-    f.drop_lot      && 'Drop Lot',
+    f.drop_lot      && (f.drop_lot_spaces ? `Drop Lot — ${Number(f.drop_lot_spaces).toLocaleString()} spaces` : 'Drop Lot'),
     f.phenix_ewms   && 'Phenix eWMS',
   ].filter(Boolean);
 
