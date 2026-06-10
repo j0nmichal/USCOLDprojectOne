@@ -299,6 +299,234 @@ PERSONAS = {
         ]
     },
 
+    "Transportation Operations Manager": {
+        "description": "A transportation ops manager sourcing cold storage with LTL/FTL, drop lot, rail, and dock requirements.",
+        "turns": [
+            {
+                "message": "Which of your facilities offer freight services?",
+                "checks": [
+                    ("Lists at least one freight facility", lambda r: any(c.isdigit() for c in r) or any(x in r for x in ["Arlington","Bethlehem","Fresno","Fort Worth","Minooka","McClellan","Dallas","Smyrna"])),
+                    ("Does not claim ALL facilities have freight", lambda r: "all facilities" not in r.lower() and "every facility" not in r.lower()),
+                    ("Does not invent a freight program name", lambda r: "freight program" not in r.lower() and "freight network" not in r.lower()),
+                ],
+            },
+            {
+                "message": "Which facilities have drop lot space?",
+                "checks": [
+                    ("Returns at least one facility", lambda r: any(c.isdigit() for c in r) or any(x in r for x in ["Drop Lot","drop lot","spaces","facility","facilities"])),
+                    ("Does not claim all facilities have drop lot", lambda r: r.lower().count("drop lot") < 20),
+                    ("Does not invent drop lot prices", lambda r: "per day" not in r.lower() and "per space" not in r.lower() and "$/space" not in r.lower()),
+                ],
+            },
+            {
+                "message": "How many dock doors does the Fort Worth facility have?",
+                "checks": [
+                    ("Returns a number", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not invent a count if data is missing", lambda r: "not on file" in r.lower() or "—" in r or any(c.isdigit() for c in r)),
+                    ("Does not say 'unlimited' or invent large numbers", lambda r: "unlimited" not in r.lower() and "100 dock" not in r.lower()),
+                ],
+            },
+            {
+                "message": "I need rail for FTL inbound to Texas. Which carriers serve your Texas facilities?",
+                "checks": [
+                    ("Mentions Texas facilities", lambda r: any(x in r for x in ["Arlington","Dallas","Denton","Fort Worth","Laredo","TX","Texas"])),
+                    ("Names an actual rail carrier (UP, BNSF, etc.)", lambda r: any(x in r for x in ["Union Pacific","UP","BNSF","Burlington","CSX","Norfolk","rail carrier"])),
+                    ("Does not invent a Texas-specific rail program", lambda r: "dedicated rail" not in r.lower() and "rail program" not in r.lower()),
+                ],
+            },
+            {
+                "message": "Do any Midwest facilities support LTL consolidation?",
+                "checks": [
+                    ("Responds with facility info, not a generic deflection", lambda r: "cold storage" not in r.lower()[:40] or any(x in r for x in ["Minooka","Wilmington","Lebanon","Hebron","Omaha","IL","IN","NE"])),
+                    ("Does not invent LTL-specific data not in the system", lambda r: "ltl rate" not in r.lower() and "ltl pricing" not in r.lower()),
+                    ("Does not hallucinate LTL as a listed capability", lambda r: "ltl capability" not in r.lower()),
+                ],
+            },
+            {
+                "message": "Does any facility have both freight services AND Union Pacific rail?",
+                "checks": [
+                    ("Gives a direct answer — yes with facilities or no", lambda r: any(x in r for x in ["yes","no","None","none","Arlington","Bakersfield","Fresno","Tracy","Tulare","Laredo"]) ),
+                    ("Does not invent a facility that has both if none do", lambda r: "Springfield" not in r and "Columbus" not in r and "Kansas City" not in r),
+                ],
+            },
+            {
+                "message": "I want to set up drop lot space at McClellan Park — who do I call?",
+                "checks": [
+                    ("Gives a contact name or phone number", lambda r: any(c.isdigit() for c in r) or "@" in r),
+                    ("Does not say 'visit our website'", lambda r: "visit our website" not in r.lower()),
+                    ("Routes to sales or facility contact", lambda r: "sales" in r.lower() or "contact" in r.lower() or "(" in r or "@" in r),
+                ],
+            },
+            {
+                "message": "What's the minimum temperature at your facility closest to the Port of Long Beach?",
+                "checks": [
+                    ("Suggests a California facility", lambda r: any(x in r for x in ["CA","California","Fresno","Bakersfield","Tracy","McClellan","Turlock","Tulare"])),
+                    ("Gives a temperature", lambda r: "-" in r or "°" in r or any(c.isdigit() for c in r)),
+                    ("Does not invent a facility in Long Beach", lambda r: "Long Beach facility" not in r and "Long Beach, CA" not in r),
+                ],
+            },
+        ]
+    },
+
+    "Metro Proximity Analyst": {
+        "description": "A site selection analyst mapping US Cold coverage relative to major metro population centers for a food distribution client.",
+        "turns": [
+            {
+                "message": "What's your closest facility to New York City?",
+                "checks": [
+                    ("Suggests a PA, NJ, or DE facility", lambda r: any(x in r for x in ["Bethlehem","Hazleton","Quakertown","Milford","PA","NJ","DE","Pennsylvania","Delaware"])),
+                    ("Does not invent a New York or NJ facility", lambda r: "New York facility" not in r and "Newark" not in r and "Brooklyn" not in r),
+                    ("Gives drive time or distance estimate", lambda r: "hour" in r.lower() or "mile" in r.lower() or "~" in r or "approx" in r.lower() or any(x in r for x in ["Bethlehem","Hazleton","Quakertown","Milford"])),
+                ],
+            },
+            {
+                "message": "What facilities are within 2–3 hours of Chicago?",
+                "checks": [
+                    ("Mentions Minooka or Wilmington IL", lambda r: "Minooka" in r or "Wilmington" in r),
+                    ("May include Indiana facilities (Lebanon or Hebron)", lambda r: "Hebron" in r or "Lebanon" in r or "IN" in r or "Indiana" in r or "Minooka" in r),
+                    ("Does not invent a Chicago or Milwaukee facility", lambda r: "Chicago facility" not in r and "Milwaukee" not in r),
+                ],
+            },
+            {
+                "message": "I need coverage near Atlanta. What's close?",
+                "checks": [
+                    ("Mentions McDonough or Georgia facilities", lambda r: any(x in r for x in ["McDonough","Georgia","GA","MCD"])),
+                    ("Does not invent an Atlanta facility", lambda r: "Atlanta facility" not in r and "Atlanta, GA" not in r.replace("near Atlanta","").replace("close to Atlanta","")),
+                    ("Gives pallet capacity or phone", lambda r: any(c.isdigit() for c in r)),
+                ],
+            },
+            {
+                "message": "What do you have near Houston and Dallas?",
+                "checks": [
+                    ("Lists Texas facilities", lambda r: any(x in r for x in ["Arlington","Dallas","Denton","Fort Worth","Laredo","TX","Texas"])),
+                    ("Mentions more than one TX facility", lambda r: sum(1 for x in ["Arlington","Dallas","Denton","Fort Worth","Laredo"] if x in r) >= 2),
+                    ("Does not invent a Houston facility", lambda r: "Houston facility" not in r and "Houston, TX" not in r.replace("near Houston","").replace("close to Houston","")),
+                ],
+            },
+            {
+                "message": "Do you have anything in the Pacific Northwest or Mountain West?",
+                "checks": [
+                    ("Acknowledges limited coverage in that region", lambda r: any(x in r for x in ["limited","no facilities","Utah","SYR","Syracuse"]) or "Pacific Northwest" in r),
+                    ("Does not invent facilities in Oregon, Washington, or Idaho", lambda r: "Oregon" not in r and "Washington" not in r and "Portland" not in r and "Seattle" not in r),
+                    ("May mention Syracuse UT if relevant", lambda r: True),  # informational only
+                ],
+            },
+            {
+                "message": "Which metro area has the highest US Cold pallet capacity within a 2-hour radius?",
+                "checks": [
+                    ("Answers with a metro or region, not a deflection", lambda r: any(x in r for x in ["California","Central Valley","Fresno","Tulare","Turlock","Chicago","PA","Pennsylvania","Texas"]) or any(c.isdigit() for c in r)),
+                    ("Does not invent capacity numbers larger than the network", lambda r: "5,000,000" not in r and "10 million" not in r.lower()),
+                    ("Backs up claim with pallet data or facility list", lambda r: any(c.isdigit() for c in r)),
+                ],
+            },
+            {
+                "message": "Give me all Southeast region facilities with their cities and states",
+                "checks": [
+                    ("Lists multiple Southeast facilities", lambda r: sum(1 for x in ["Covington","La Vergne","Smyrna","Lumberton","Warsaw","McDonough","Lake City","Harrisonburg","Richmond"] if x in r) >= 3),
+                    ("Does not include California or Midwest facilities in Southeast list", lambda r: "Fresno" not in r and "Minooka" not in r and "Omaha" not in r),
+                    ("Includes state abbreviations or full state names", lambda r: any(x in r for x in ["TN","NC","GA","FL","VA","Tennessee","North Carolina","Georgia","Florida","Virginia"])),
+                ],
+            },
+            {
+                "message": "Which single facility would best serve both the Memphis and Nashville markets?",
+                "checks": [
+                    ("Recommends a Tennessee or nearby facility", lambda r: any(x in r for x in ["Covington","La Vergne","Smyrna","TN","Tennessee","Lumberton","Harrisonburg"])),
+                    ("Does not invent a Memphis or Nashville facility", lambda r: "Memphis facility" not in r and "Nashville facility" not in r),
+                    ("Provides a rationale or location detail", lambda r: "hour" in r.lower() or "TN" in r or "Tennessee" in r or any(c.isdigit() for c in r)),
+                ],
+            },
+        ]
+    },
+
+    "Senior Operations Analyst": {
+        "description": "A US Cold ops analyst building a network summary. Wants aggregate totals, rankings, region breakdowns, and cross-facility comparisons. Tests cumulative reasoning and hallucination under pressure.",
+        "turns": [
+            {
+                "message": "What is the total pallet capacity across the entire US Cold network?",
+                "checks": [
+                    ("Returns a large number (network is ~2M+ pallets)", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not round to a suspiciously clean number with no basis", lambda r: "exactly 2,000,000" not in r and "exactly 1,000,000" not in r),
+                    ("Shows the sum, not just a single facility", lambda r: "total" in r.lower() or "combined" in r.lower() or "network" in r.lower() or any(c.isdigit() for c in r)),
+                ],
+            },
+            {
+                "message": "Which 3 facilities have the most pallet positions?",
+                "checks": [
+                    ("Mentions Fresno, Tulare North, or McClellan in top 3", lambda r: sum(1 for x in ["Fresno","Tulare North","McClellan","89,000","87,899","83,148"] if x in r) >= 1),
+                    ("Lists exactly 3 or names them clearly", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not include a hallucinated facility in top 3", lambda r: "Springfield" not in r and "Seattle" not in r and "Phoenix" not in r),
+                ],
+            },
+            {
+                "message": "How many facilities do we have in California, and what's their combined pallet count?",
+                "checks": [
+                    ("States the correct count (8 CA facilities)", lambda r: "8" in r or "eight" in r.lower()),
+                    ("Gives a combined pallet total", lambda r: any(c.isdigit() for c in r)),
+                    ("Lists the California facilities or names several", lambda r: sum(1 for x in ["Fresno","Bakersfield","Tracy","McClellan","Tulare","Turlock"] if x in r) >= 2),
+                ],
+            },
+            {
+                "message": "How many of our facilities have organic storage capability?",
+                "checks": [
+                    ("Returns a specific count", lambda r: any(c.isdigit() for c in r)),
+                    ("Does not claim all facilities are organic", lambda r: "all facilities" not in r.lower() and "every facility" not in r.lower()),
+                    ("Names at least one organic facility", lambda r: any(x in r for x in ["Fresno","McClellan","Lumberton","Tulare","Turlock"])),
+                ],
+            },
+            {
+                "message": "Give me a side-by-side comparison of Minooka and Wilmington — capacity, temp, capabilities, contacts",
+                "checks": [
+                    ("Covers both facilities", lambda r: "Minooka" in r and "Wilmington" in r),
+                    ("Includes pallet counts for both", lambda r: r.count(",000") >= 2 or r.count("pallet") >= 2 or (any(c.isdigit() for c in r) and "Minooka" in r and "Wilmington" in r)),
+                    ("Includes temperature data", lambda r: "-" in r and ("F" in r or "°" in r)),
+                    ("Does not invent capabilities not in the data", lambda r: "blast freeze" not in r.lower() and "pharmaceutical" not in r.lower()),
+                ],
+            },
+            {
+                "message": "How many facilities have both automation AND rail access?",
+                "checks": [
+                    ("Returns a specific count or lists them", lambda r: any(c.isdigit() for c in r) or any(x in r for x in ["facility","facilities","none"])),
+                    ("Does not claim a number larger than the total network", lambda r: not any(str(n) in r for n in range(40, 100))),
+                    ("Does not hallucinate a facility as automated that isn't", lambda r: "Covington" not in r.replace("does not","") or "automated" not in r.lower()),
+                ],
+            },
+            {
+                "message": "Which facility has the widest temperature range in the network?",
+                "checks": [
+                    ("Names a specific facility", lambda r: any(x in r for x in ["McClellan","Fresno","Tulare","Minooka","Arlington","McDonough","Bethlehem","Hazleton","Lumberton","Hebron","Lebanon","Smyrna"])),
+                    ("Includes the actual temperature range", lambda r: "-" in r and any(c.isdigit() for c in r)),
+                    ("Does not invent a facility name", lambda r: "Springfield" not in r and "Phoenix" not in r and "Seattle" not in r),
+                ],
+            },
+            {
+                "message": "Summarize our Texas footprint — all facilities, total capacity, and key capabilities",
+                "checks": [
+                    ("Lists multiple Texas facilities", lambda r: sum(1 for x in ["Arlington","Dallas","Denton","Fort Worth","Laredo"] if x in r) >= 3),
+                    ("Includes a total or per-facility pallet count", lambda r: any(c.isdigit() for c in r)),
+                    ("Mentions capabilities like rail, drop lot, or export", lambda r: any(x in r.lower() for x in ["rail","drop lot","export","freight","repack","automated"])),
+                    ("Does not add Houston or San Antonio as US Cold locations", lambda r: "Houston facility" not in r and "San Antonio facility" not in r),
+                ],
+            },
+            {
+                "message": "Which states have more than one US Cold facility, and how many in each?",
+                "checks": [
+                    ("Mentions California with the most (8)", lambda r: "California" in r or "CA" in r),
+                    ("Mentions Texas (9 facilities)", lambda r: "Texas" in r or "TX" in r),
+                    ("Does not invent states without multiple facilities", lambda r: "Colorado" not in r and "Arizona" not in r and "Ohio" not in r),
+                    ("Lists more than 3 multi-facility states", lambda r: sum(1 for x in ["California","Texas","PA","Pennsylvania","Tennessee","Indiana","Illinois","North Carolina","Virginia"] if x in r) >= 3),
+                ],
+            },
+            {
+                "message": "What's the total number of dock doors across the entire network, and which 3 facilities have the most?",
+                "checks": [
+                    ("Attempts a total or says data is incomplete", lambda r: any(c.isdigit() for c in r) or "not available" in r.lower() or "on file" in r.lower()),
+                    ("Does not invent dock door counts for facilities with no data", lambda r: "every facility" not in r.lower()),
+                    ("Names specific facilities or acknowledges gaps", lambda r: any(x in r for x in ["Fresno","McClellan","Minooka","Fort Worth","Dallas","Tulare","Bakersfield"]) or "data" in r.lower()),
+                ],
+            },
+        ]
+    },
+
     "Off-Topic User": {
         "description": "A user who asks things outside US Cold's scope — competitors, general cold storage advice, weather, recipes, pricing sheets. Tests guardrail redirects.",
         "turns": [
