@@ -628,7 +628,7 @@ def run_persona(name, config, system_prompt):
 
         # Pause between turns to stay under token-per-minute limit
         if i < len(config["turns"]):
-            time.sleep(8)
+            time.sleep(15)
 
         messages.append({"role": "assistant", "content": response})
 
