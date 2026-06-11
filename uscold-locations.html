@@ -666,7 +666,7 @@ function buildSystemPrompt(facilities) {
   //             LP=Layer Pick, RPK=Repack, EXP=Export/Import, ORG=Organic, DED=Dedicated
   // Flags: DL=Drop Lot (DL(n)=with n spaces), CS=COLDshare, FR=Freight, PE=Phenix eWMS
   // rail = carrier name, or NO if no rail; avail = Y/N/blank
-  const HEADER = 'name|city|state|addr|zip|phone|pallets|cubic_ft|temp|rail|dock|avail|exp|caps|certs|sales_name|sales_phone|sales_email|flags|notes';
+  const HEADER = 'name|city|state|addr|zip|phone|pallets|cubic_ft|temp|rail|dock|avail|exp|caps|certs|region|wh_name|wh_phone|wh_email|gm_name|gm_phone|gm_email|sales_name|sales_phone|sales_email|flags|notes';
 
   const rows = facilities.map(f => {
     const caps = [
